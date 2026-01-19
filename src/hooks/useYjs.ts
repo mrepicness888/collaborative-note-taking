@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import * as Y from "yjs"
 import { WebsocketProvider } from "y-websocket"
 import { supabase } from "../lib/supabase"
+import { Awareness } from "y-protocols/awareness"
 
 export function useYjs(roomId: string) {
   const [ydoc] = useState(() => new Y.Doc())
   const [loaded, setLoaded] = useState(false)
+  const awarenessRef = useRef<Awareness | null>(null)
 
   useEffect(() => {
     const loadDocument = async () => {
@@ -39,36 +41,33 @@ export function useYjs(roomId: string) {
       ydoc
     )
 
+    awarenessRef.current = provider.awareness
+
     return () => {
       provider.destroy()
-      ydoc.destroy()
     }
   }, [roomId, ydoc, loaded])
+
+  
 
   useEffect(() => {
     if (!loaded) return
 
-    const save = async () => {
-      const update = Y.encodeStateAsUpdate(ydoc)
-
-      await supabase
-        .from("documents")
-        .upsert({
-          room_id: roomId,
-          content: update,
-          updated_at: new Date().toISOString(),
-        })
+    const handler = async (update: Uint8Array) => {
+      await supabase.from("documents").upsert({
+        room_id: roomId,
+        content: update,
+        updated_at: new Date().toISOString(),
+      })
     }
 
-    ydoc.on("update", save)
-
-    return () => {
-      ydoc.off("update", save)
-    }
-  }, [roomId, ydoc, loaded])
+    ydoc.on("update", handler)
+    return () => ydoc.off("update", handler)
+  }, [loaded, roomId, ydoc])
 
   return {
     ytext: ydoc.getText("content"),
+    awarenessRef,
     ready: loaded,
   }
 }
