@@ -1,11 +1,14 @@
 import { useState } from "react"
 import { supabase } from "../lib/supabase"
+import { useNavigate } from "react-router-dom"
 
 export default function Signup() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  const navigate = useNavigate()
 
   const signUp = async () => {
     setLoading(true)
@@ -20,6 +23,7 @@ export default function Signup() {
       setError(error.message)
     } else {
       alert("Signup successful! You can now log in.")
+      navigate("/login", { replace: true })
     }
 
     setLoading(false)

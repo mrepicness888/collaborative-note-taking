@@ -16,8 +16,12 @@ type AwarenessState = {
   cursor?: AwarenessCursor
 }
 
-export default function Editor() {
-  const { ytext, awarenessRef, ready } = useYjs("demo-room")
+interface Props {
+    roomID: string,
+}
+
+export default function Editor(props: Props) {
+  const { ytext, awarenessRef, ready } = useYjs(props.roomID)
 
   const [text, setText] = useState("")
   const [others, setOthers] = useState<AwarenessState[]>([])

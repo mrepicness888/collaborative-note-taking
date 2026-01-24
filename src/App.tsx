@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react"
 import { supabase } from "./lib/supabase"
-import Editor from "./components/Editor"
-import Login from "./Auth/Login"
 import type { Session } from "@supabase/supabase-js"
 import { Navigate, Route, Routes } from "react-router-dom"
+
+import Login from "./Auth/Login"
 import Signup from "./Auth/Signup"
+import EditorPage from "./components/EditorPage"
+import Dashboard from "./components/Dashboard"
+import ProtectedRoute from "./Auth/ProtectedRoute"
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -14,25 +17,28 @@ function App() {
       setSession(data.session)
     })
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
     })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   return (
     <Routes>
-      {session ? (
-        <Route path="/*" element={<Editor />} />
-      ) : (
-        <>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="*" element={<Navigate to="/login" />} />
-        </>
-      )}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
+      <Route element={<ProtectedRoute session={session} />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/docs/:id" element={<EditorPage />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
-
 }
 
 export default App
