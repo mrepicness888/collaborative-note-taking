@@ -12,6 +12,7 @@ type DocumentRow = {
 export default function Dashboard() {
   const [docs, setDocs] = useState<DocumentRow[]>([])
   const [title, setTitle] = useState("")
+  const [role, setRole] = useState("")
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -24,37 +25,80 @@ export default function Dashboard() {
       setDocs(data ?? [])
     }
 
+    const fetchAccountRole = async () => {
+      const { data: auth } = await supabase.auth.getUser()
+      const user = auth.user
+      if (!user) return
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("account_role")
+        .eq("user_id", user.id)
+        .single()
+
+      setRole(data?.account_role ?? null)
+    }
+
     loadDocs()
+    fetchAccountRole()
+    
   }, [])
 
-  const createDoc = async () => {
-    if (!title.trim()) return
+const handleCreateDocument = async () => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-    const roomId = crypto.randomUUID()
+  if (!user) return
 
-    const { data } = await supabase
-      .from("documents")
-      .insert({
-        title,
-        room_id: roomId,
-        content: null,
-      })
-      .select()
-      .single()
+  const { data: document, error: docError } = await supabase
+    .from("documents")
+    .insert({
+      title: title.trim(),
+      created_by: user.id,
+      content: "test",
+    })
+    .select()
+    .single()
 
-    navigate(`/docs/${data.id}`)
+  console.log("Created document:", document)
+
+  if (docError || document == null) {
+    console.error("Failed to create document:", docError)
+    return
   }
+
+  
+  const { error: membershipError } = await supabase
+    .from("document_memberships")
+    .insert({
+      document_id: document.id,
+      user_id: user.id,
+      role: "lecturer",
+    })
+
+  if (membershipError) {
+    console.error("Failed to assign lecturer role:", membershipError)
+    return
+  }
+
+  navigate(`/doc/${document.id}`)
+}
 
   return (
     <div style={{ maxWidth: 600, margin: "auto" }}>
       <h2>Your documents</h2>
-
-      <input
-        placeholder="New document title"
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-      />
-      <button onClick={createDoc}>Create</button>
+      <>{console.log(role)}</>
+      {role === "professor" && (
+        <>
+          <input
+            placeholder="New document title"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+          />
+          <button onClick={handleCreateDocument}>Create</button>
+        </>
+      )}
 
       <ul>
         {docs.map(doc => (

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react"
 import { useYjs } from "../hooks/useYjs"
+import { useNavigate } from "react-router-dom"
+import { supabase } from "../lib/supabase"
+import InviteButton from "./InviteButton"
 
 type AwarenessUser = {
   name: string
@@ -17,14 +20,69 @@ type AwarenessState = {
 }
 
 interface Props {
-    roomID: string,
+  roomID: string,
 }
 
+type Role = "lecturer" | "student"
+
 export default function Editor(props: Props) {
+  const navigate = useNavigate()
   const { ytext, awarenessRef, ready } = useYjs(props.roomID)
 
   const [text, setText] = useState("")
   const [others, setOthers] = useState<AwarenessState[]>([])
+  const [title, setTitle] = useState<string>("")
+  const [role, setRole] = useState<Role | null>(null)
+  const [roleLoading, setRoleLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      if (!props.roomID) return
+
+      const { data, error } = await supabase
+        .from("document_memberships")
+        .select("role")
+        .eq("document_id", props.roomID)
+        .maybeSingle()
+
+        
+      if (error || !data) {
+        console.log("Route documentId:", props.roomID)
+        console.log(error)
+        console.log(data)
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+
+        console.log("Auth user id:", user?.id)
+        setRole(null)
+      } else {
+        console.log("working")
+        setRole(data.role)
+      }
+
+      setRoleLoading(false)
+    }
+
+    fetchRole()
+    
+  }, [props.roomID])
+
+  useEffect(() => {
+  const loadMeta = async () => {
+    const { data } = await supabase
+      .from("documents")
+      .select("title")
+      .eq("id", props.roomID)
+      .single()
+
+    if (data?.title) {
+      setTitle(data.title)
+    }
+  }
+
+  loadMeta()
+}, [props.roomID])
 
   useEffect(() => {
     if (!ready) return
@@ -64,6 +122,7 @@ export default function Editor(props: Props) {
           cursor: state?.cursor,
         })
       )
+
       setOthers(states)
     }
 
@@ -78,6 +137,16 @@ export default function Editor(props: Props) {
   if (!ready) {
     return <div>Loading document…</div>
   }
+
+  if (roleLoading) {
+    return <div>Loading document…</div>
+  }
+
+  if (!role) {
+    console.log("Role for this document:", role)
+    return <div>Access denied</div>
+  }
+
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value
@@ -105,6 +174,11 @@ export default function Editor(props: Props) {
 
   return (
     <>
+
+      <button onClick={() => navigate("/dashboard")}>Back to Dashboard</button>
+      {role === "lecturer" && (
+        <InviteButton documentId={props.roomID} />
+      )}
       <div style={{ marginBottom: 8, fontSize: "0.9em" }}>
         <strong>Active users:</strong>{" "}
         {others.map(o => (
@@ -117,7 +191,8 @@ export default function Editor(props: Props) {
           </span>
         ))}
       </div>
-
+      
+      <h2 style={{ margin: 0 }}>{title || "Untitled document"}</h2>
       <textarea
         value={text}
         onChange={handleChange}
