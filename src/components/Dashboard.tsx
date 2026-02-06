@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
+import * as Y from "yjs";
 
 type DocumentRow = {
   id: string
@@ -44,46 +45,66 @@ export default function Dashboard() {
     
   }, [])
 
-const handleCreateDocument = async () => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const handleCreateDocument = async () => {
+    console.log("being called")
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  if (!user) return
+    if (!user) return
 
-  const { data: document, error: docError } = await supabase
-    .from("documents")
-    .insert({
-      title: title.trim(),
-      created_by: user.id,
-      content: "test",
-    })
-    .select()
-    .single()
 
-  console.log("Created document:", document)
+    const ydoc = new Y.Doc();
 
-  if (docError || document == null) {
-    console.error("Failed to create document:", docError)
-    return
+    const snapshot = Y.encodeStateAsUpdate(ydoc); // Uint8Array
+    const base64 = btoa(String.fromCharCode(...snapshot));
+
+    const { data: document, error: docError } = await supabase
+      .from("documents")
+      .insert({
+        title: title.trim(),
+        created_by: user.id,
+        content: base64,
+      })
+      .select()
+      .single()
+
+
+    if (docError || document == null) {
+      console.error("Failed to create document:", docError)
+      return
+    }
+
+    
+      const { data: existingMembership } = await supabase
+        .from("document_memberships")
+        .select()
+        .eq("document_id", document.id)
+        .eq("user_id", user.id)
+        .single();
+
+      if (!existingMembership) {
+        const { error: membershipError } = await supabase
+          .from("document_memberships")
+          .insert({
+            document_id: document.id,
+            user_id: user.id,
+            role: "lecturer",
+          });
+
+        if (membershipError) {
+          console.error("Failed to assign lecturer role:", membershipError);
+          return;
+        }
+      }
+
+
+    console.log(document)
+
+    navigate(`/doc/${document.id}`);
+
+    
   }
-
-  
-  const { error: membershipError } = await supabase
-    .from("document_memberships")
-    .insert({
-      document_id: document.id,
-      user_id: user.id,
-      role: "lecturer",
-    })
-
-  if (membershipError) {
-    console.error("Failed to assign lecturer role:", membershipError)
-    return
-  }
-
-  navigate(`/doc/${document.id}`)
-}
 
   return (
     <div style={{ maxWidth: 600, margin: "auto" }}>
@@ -102,7 +123,7 @@ const handleCreateDocument = async () => {
 
       <ul>
         {docs.map(doc => (
-          <li key={doc.id}>
+          <li key={doc.id} className="card">
             <button onClick={() => navigate(`/docs/${doc.id}`)}>
               {doc.title}
             </button>

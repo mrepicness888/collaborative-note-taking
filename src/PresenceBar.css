@@ -1,0 +1,45 @@
+.presence-bar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+  overflow-x: auto;
+}
+
+.presence-user {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.presence-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.presence-name {
+  font-weight: 500;
+}
+
+.presence-role {
+  font-size: 0.7rem;
+  color: #666;
+  padding: 0 0.2rem;
+  border-radius: 2px;
+  background: #f0f0f0;
+}
+
+.presence-typing {
+  font-size: 0.7rem;
+  font-style: italic;
+  color: #00a;
+  margin-left: 0.2rem;
+}
