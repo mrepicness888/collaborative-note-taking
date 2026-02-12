@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 import InviteButton from "./InviteButton"
 import PresenceBar from "./PresenceBar";
+import RichTextEditor from "./RichTextEditor"
 
 interface Props {
   roomID: string,
@@ -15,10 +16,9 @@ type Role = "lecturer" | "student"
 
 export default function Editor(props: Props) {
   const navigate = useNavigate()
-  const { ytext, ymeta, yquestions, ymargin, awarenessRef, ready } = useYjs(props.roomID)
+  const { ydoc, ytext, ymeta, yquestions, ymargin, awarenessRef, ready } = useYjs(props.roomID)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const [mode, setMode] = useState<EditorMode>("discussion")
-  const [text, setText] = useState("")
   const [title, setTitle] = useState<string>("")
   const [role, setRole] = useState<Role | null>(null)
   const [roleLoading, setRoleLoading] = useState(true)
@@ -114,17 +114,17 @@ export default function Editor(props: Props) {
   loadMeta()
 }, [props.roomID])
 
-  useEffect(() => {
-    if (!ready) return
+  // useEffect(() => {
+  //   if (!ready) return
 
-    const update = () => {
-      setText(ytext.toString())
-    }
+  //   const update = () => {
+  //     setText(ytext.toString())
+  //   }
 
-    update()
-    ytext.observe(update)
-    return () => ytext.unobserve(update)
-  }, [ytext, ready])
+  //   update()
+  //   ytext.observe(update)
+  //   return () => ytext.unobserve(update)
+  // }, [ytext, ready])
 
   useEffect(() => {
     if (!ready) return
@@ -163,29 +163,29 @@ export default function Editor(props: Props) {
     ymeta.set("mode", newMode)
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value
-    const oldValue = ytext.toString()
+  // const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  //   const value = e.target.value
+  //   const oldValue = ytext.toString()
 
-    if (value === oldValue) return
+  //   if (value === oldValue) return
 
-    ytext.doc?.transact(() => {
-      const minLen = Math.min(value.length, oldValue.length)
+  //   ytext.doc?.transact(() => {
+  //     const minLen = Math.min(value.length, oldValue.length)
 
-      let index = 0
-      while (index < minLen && value[index] === oldValue[index]) {
-        index++
-      }
+  //     let index = 0
+  //     while (index < minLen && value[index] === oldValue[index]) {
+  //       index++
+  //     }
 
-      if (oldValue.length > index) {
-        ytext.delete(index, oldValue.length - index)
-      }
+  //     if (oldValue.length > index) {
+  //       ytext.delete(index, oldValue.length - index)
+  //     }
 
-      if (value.length > index) {
-        ytext.insert(index, value.slice(index))
-      }
-    })
-  }
+  //     if (value.length > index) {
+  //       ytext.insert(index, value.slice(index))
+  //     }
+  //   })
+  // }
 
   const handleAddMarginNote = () => {
     const textarea = textareaRef.current
@@ -287,7 +287,6 @@ export default function Editor(props: Props) {
         <PresenceBar awareness={awarenessRef.current!} />
       </header>
 
-
       <div className="editor-layout">
         <aside className="side-panel">
           {mode === "lecture" && (
@@ -344,23 +343,8 @@ export default function Editor(props: Props) {
 
         <main className="editor-main">
           <h2 style={{ margin: 0 }}>{title || "Untitled document"}</h2>
-          <textarea
-            ref={textareaRef}
-            className={mode === "lecture" && !canEditMainText ? "editor-textarea locked" : "editor-textarea"}
-            value={text}
-            onChange={handleChange}
-            readOnly={!canEditMainText}
-            onSelect={(e) => {
-              const awareness = awarenessRef.current
-              if (!awareness) return
-              const target = e.target as HTMLTextAreaElement
-              awareness.setLocalStateField("cursor", {
-                index: target.selectionStart,
-              })
-            }}
-            style={{ width: "100%", height: "80vh" }}
-            placeholder="Start taking notes…"
-          />
+          <>{console.log(ytext.doc)}</>
+          {ready && <RichTextEditor ydoc={ydoc} ytext={ytext} editable={canEditMainText} />}
         </main>
       </div>
 

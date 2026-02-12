@@ -119,6 +119,7 @@ export function useYjs(documentId: string) {
   }, [documentId, ydoc, loaded])
 
   return {
+    ydoc,
     ytext: ydoc.getText("content"),
     ymeta, 
     yquestions,
