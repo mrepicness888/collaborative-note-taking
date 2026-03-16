@@ -20,12 +20,24 @@ export type Question = {
   timestamp: number
 }
 
+export type Suggestion = {
+  id: string
+  author: string
+  from: number
+  to: number
+  text: string
+  resolved: boolean
+  accepted: boolean
+  votes: string[]
+}
+
 export function useYjs(documentId: string) {
   const [ydoc] = useState(() => new Y.Doc())
   const [loaded, setLoaded] = useState(false)
   const awarenessRef = useRef<Awareness | null>(null)
   const ymeta = ydoc.getMap("meta")
   const yquestions = ydoc.getArray<Question>("questions")
+  const ysuggestions = ydoc.getArray<Suggestion>("suggestions")
   const ymargin = ydoc.getArray<MarginNote>("margin_notes")
   const hasHydrated = useRef(false)
 
@@ -124,6 +136,7 @@ export function useYjs(documentId: string) {
     ymeta, 
     yquestions,
     ymargin,
+    ysuggestions,
     awarenessRef,
     ready: loaded,
   }

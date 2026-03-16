@@ -1,4 +1,4 @@
-import { useEditor, EditorContent } from "@tiptap/react"
+import { useEditor, EditorContent, Editor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Collaboration from "@tiptap/extension-collaboration"
 import { type Text, type Doc } from "yjs"
@@ -9,32 +9,43 @@ interface Props {
   ydoc: Doc  
   ytext: Text 
   editable: boolean
+  onEditorReady?: (editor: Editor) => void
 }
 
-export default function RichTextEditor({ ydoc, editable }: Props) {
+export default function RichTextEditor(props: Props) {
+
+
+
   const editor = useEditor({
-    editable,
+    editable: props.editable,
     extensions: [
       StarterKit,
       Collaboration.configure({
-        document: ydoc,
+        document: props.ydoc,
       }),
     ],
   })
 
+    useEffect(() => {
+      if (editor && props.onEditorReady) {
+        props.onEditorReady(editor)
+      }
+    }, [editor, props])
+
+
   useEffect(() => {
     if (!editor) return
-    editor.setEditable(editable)
-  }, [editor, editable])
+    editor.setEditable(props.editable)
+  }, [editor, props.editable])
 
   if (!editor) return <div>Loading editor…</div>
 
   return (
     <>
-      <EditorToolbar editor={editor} disabled={!editable} />
+      <EditorToolbar editor={editor} disabled={!props.editable} />
       <EditorContent
         editor={editor}
-        className={`editor-textarea ${!editable ? "locked" : ""}`}
+        className={`editor-textarea ${!props.editable ? "locked" : ""}`}
       />
     </>
   )

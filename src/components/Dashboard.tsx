@@ -56,7 +56,7 @@ export default function Dashboard() {
 
     const ydoc = new Y.Doc();
 
-    const snapshot = Y.encodeStateAsUpdate(ydoc); // Uint8Array
+    const snapshot = Y.encodeStateAsUpdate(ydoc);
     const base64 = btoa(String.fromCharCode(...snapshot));
 
     const { data: document, error: docError } = await supabase
@@ -101,35 +101,85 @@ export default function Dashboard() {
 
     console.log(document)
 
-    navigate(`/doc/${document.id}`);
+    navigate(`/docs/${document.id}`);
 
     
   }
-
   return (
-    <div style={{ maxWidth: 600, margin: "auto" }}>
-      <h2>Your documents</h2>
-      <>{console.log(role)}</>
-      {role === "professor" && (
-        <>
-          <input
-            placeholder="New document title"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-          />
-          <button onClick={handleCreateDocument}>Create</button>
-        </>
-      )}
+    <div className="dashboard-page">
 
-      <ul>
-        {docs.map(doc => (
-          <li key={doc.id} className="card">
-            <button onClick={() => navigate(`/docs/${doc.id}`)}>
-              {doc.title}
+      <header className="dashboard-header">
+        <div>
+          <h1>Collabrative Note Taking</h1>
+          <p className="role-badge">
+            Logged in as: <strong>{role ?? "Loading..."}</strong>
+          </p>
+        </div>
+
+        {role === "professor" && (
+          <div className="create-section">
+            <input
+              className="create-input"
+              placeholder="New Document title..."
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+            />
+            <button className="primary-button" onClick={handleCreateDocument}>
+              Create Document
             </button>
-          </li>
-        ))}
-      </ul>
+          </div>
+        )}
+      </header>
+
+      <section className="dashboard-stats">
+        <div className="stat-card">
+          <h3>{docs.length}</h3>
+          <p>Total Documents</p>
+        </div>
+        <div className="stat-card">
+          <h3>—</h3>
+          <p>Active Sessions</p>
+        </div>
+        <div className="stat-card">
+          <h3>—</h3>
+          <p>Open Questions</p>
+        </div>
+      </section>
+
+      <section className="documents-section">
+        <h2>Your Documents</h2>
+
+        {docs.length === 0 ? (
+          <div className="empty-state">
+            <p>No documents yet.</p>
+            {role === "professor" && (
+              <p>Create your first collaborative lecture to get started.</p>
+            )}
+          </div>
+        ) : (
+          <div className="documents-grid">
+            {docs.map(doc => (
+              <div key={doc.id} className="document-card">
+                <div className="document-info">
+                  <h3 className="centre">{doc.title}</h3>
+                  <p className="document-meta">
+                    Last updated:{" "}
+                    {new Date(doc.updated_at).toLocaleString()}
+                  </p>
+                </div>
+
+                <button
+                  className="secondary-button"
+                  onClick={() => navigate(`/docs/${doc.id}`)}
+                >
+                  Open
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   )
+
 }

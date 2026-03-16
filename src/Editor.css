@@ -220,3 +220,28 @@
   background: #e5e7eb;
   margin: 0 0.25rem;
 }
+
+.suggestion-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #f9fafb;
+}
+
+.accept-btn {
+  background: #10b981;
+  color: white;
+}
+
+.reject-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.badge.revision {
+  background: #f59e0b;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 999px;
+}

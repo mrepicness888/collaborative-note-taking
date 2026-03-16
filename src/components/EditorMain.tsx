@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react"
-import { useYjs, type MarginNote, type Question } from "../hooks/useYjs"
+import { useYjs, type MarginNote, type Question, type Suggestion } from "../hooks/useYjs"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 import InviteButton from "./InviteButton"
 import PresenceBar from "./PresenceBar";
 import RichTextEditor from "./RichTextEditor"
+import { Editor } from "@tiptap/react"
 
 interface Props {
   roomID: string,
@@ -14,9 +15,9 @@ type EditorMode = "lecture" | "discussion" | "revision"
 
 type Role = "lecturer" | "student"
 
-export default function Editor(props: Props) {
+export default function EditorMain(props: Props) {
   const navigate = useNavigate()
-  const { ydoc, ytext, ymeta, yquestions, ymargin, awarenessRef, ready } = useYjs(props.roomID)
+  const { ydoc, ytext, ymeta, yquestions, ymargin, ysuggestions, awarenessRef, ready } = useYjs(props.roomID)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const [mode, setMode] = useState<EditorMode>("discussion")
   const [title, setTitle] = useState<string>("")
@@ -25,6 +26,13 @@ export default function Editor(props: Props) {
   const [questions, setQuestions] = useState<Question[]>([])
   const [marginNotes, setMarginNotes] = useState<MarginNote[]>([])
   const [highlightPos, setHighlightPos] = useState<number | null>(null)
+  const [editorInstance, setEditorInstance] = useState<Editor | null>(null)
+  const [suggestionDraft, setSuggestionDraft] = useState<{
+    from: number
+    to: number
+    original: string
+    replacement: string
+  } | null>(null)
 
   useEffect(() => {
     const update = () => {
@@ -253,6 +261,71 @@ export default function Editor(props: Props) {
     return lineCount * lineHeight
   }
 
+  const openSuggestionModal = ({
+    from,
+    to,
+    selectedText
+  }: {
+    from: number
+    to: number
+    selectedText: string
+  }) => {
+    setSuggestionDraft({
+      from,
+      to,
+      original: selectedText,
+      replacement: ""
+    })
+  }
+
+  const handleCreateSuggestion = async () => {
+    console.log("being called")
+    console.log(editorInstance)
+    if (!editorInstance) return
+
+    console.log("not being returned")
+
+    const { from, to } = editorInstance.state.selection
+
+    if (from === to) {
+      alert("Please select text to suggest a revision.")
+      return
+    }
+
+    const selectedText = editorInstance.state.doc.textBetween(
+      from,
+      to,
+      " "
+    )
+
+    openSuggestionModal({
+      from,
+      to,
+      selectedText
+    })
+  }
+
+  const handleAcceptSuggestion = (s: Suggestion) => {
+    if (s.resolved) return
+
+    const index = ysuggestions.toArray().findIndex(x => x.id === s.id)
+    if (index === -1) return
+
+    ytext.doc?.transact(() => {
+      ytext.delete(s.from, s.to - s.from)
+      ytext.insert(s.from, s.text)
+
+      const updated = {
+        ...s,
+        resolved: true,
+        accepted: true
+      }
+
+      ysuggestions.delete(index, 1)
+      ysuggestions.insert(index, [updated])
+    })
+  }
+
   return (
     <div className="editor-page">
 
@@ -282,6 +355,15 @@ export default function Editor(props: Props) {
               <option value="revision">Revision Mode</option>
             </select>
           </div>
+        )}
+
+        {mode === "revision" && (
+          <button
+            className="suggest-btn"
+            onClick={handleCreateSuggestion}
+          >
+            Suggest Change
+          </button>
         )}
 
         <PresenceBar awareness={awarenessRef.current!} />
@@ -338,16 +420,131 @@ export default function Editor(props: Props) {
               }}
             />
           )}
+
+          {mode === "revision" && (
+            <div className="panel">
+              <h3>Suggestions</h3>
+
+              {ysuggestions.length === 0 && (
+                <p className="empty-state">No suggestions yet.</p>
+              )}
+
+              {ysuggestions.map((s) => (
+                <div key={s.id} className={`suggestion-card ${s.resolved ? "resolved" : ""}`}>
+                  
+                  <div className="suggestion-meta">
+                    <span className="author">{s.author}</span>
+                  </div>
+
+                  <div className="suggestion-body">
+                    <p>
+                      Replace text at {s.from}–{s.to}, with:
+                    </p>
+                    <div>{s.text}</div>
+                  </div>
+
+                  {!s.resolved && role == "lecturer" && (
+                    <div className="suggestion-actions">
+                      <button
+                        className="accept-btn"
+                        onClick={() => handleAcceptSuggestion(s)}
+                      >
+                        Accept
+                      </button>
+
+                      <button
+                        className="reject-btn"
+                        //onClick={() => handleRejectSuggestion(s)}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
+
+                  {s.resolved && (
+                    <div className="suggestion-status">
+                      {s.accepted ? "Accepted" : "Rejected"}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </aside>
 
 
         <main className="editor-main">
           <h2 style={{ margin: 0 }}>{title || "Untitled document"}</h2>
           <>{console.log(ytext.doc)}</>
-          {ready && <RichTextEditor ydoc={ydoc} ytext={ytext} editable={canEditMainText} />}
+          {ready && <RichTextEditor ydoc={ydoc} ytext={ytext} editable={canEditMainText} onEditorReady={setEditorInstance} />}
         </main>
       </div>
 
+      {suggestionDraft && (
+        <div className="modal-overlay">
+          <div className="modal">
+
+            <h3>Suggest Revision</h3>
+
+            <div className="diff-preview">
+              <p className="original">
+                <strong>Original:</strong> {suggestionDraft.original}
+              </p>
+
+              <p className="replacement">
+                <strong>Replacement:</strong> {suggestionDraft.replacement || "—"}
+              </p>
+            </div>
+
+            <textarea
+              className="modal-input"
+              placeholder="Enter revised text..."
+              value={suggestionDraft.replacement}
+              onChange={(e) =>
+                setSuggestionDraft({
+                  ...suggestionDraft,
+                  replacement: e.target.value
+                })
+              }
+            />
+
+            <div className="modal-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => setSuggestionDraft(null)}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="confirm-btn"
+                onClick={async () => {
+                  const user = (await supabase.auth.getUser()).data.user
+                  if (!user) return
+
+                  ysuggestions.push([
+                    {
+                      id: crypto.randomUUID(),
+                      author: user.email || "Anonymous",
+                      from: suggestionDraft.from,
+                      to: suggestionDraft.to,
+                      text: suggestionDraft.replacement.trim(),
+                      resolved: false,
+                      accepted: false,
+                      votes: []
+                    }
+                  ])
+
+                  setSuggestionDraft(null)
+                }}
+              >
+                Submit Suggestion
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   )
 }
