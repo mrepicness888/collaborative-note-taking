@@ -1,10 +1,10 @@
-import { useParams } from "react-router-dom"
-import EditorMain from "./EditorMain"
+import { useParams } from "react-router-dom";
+import EditorMain from "./EditorMain";
 
 export default function EditorPage() {
-  const { id } = useParams()
+  const { id } = useParams();
 
-  if (!id) return <div>Loading…</div>
+  if (!id) return <div>Loading…</div>;
 
-  return <EditorMain roomID = {id} />
+  return <EditorMain roomID={id} />;
 }

@@ -1,18 +1,14 @@
-import { Editor } from "@tiptap/react"
+import { Editor } from "@tiptap/react";
 
 interface Props {
-  editor: Editor | null
-  disabled?: boolean
+  editor: Editor | null;
+  disabled?: boolean;
 }
 
-
-
-
 export default function EditorToolbar({ editor, disabled }: Props) {
-  if (!editor) return null
-    const headingLevels: (1 | 2 | 3)[] = [1, 2, 3]
-  const btn = (active: boolean) =>
-    `toolbar-button ${active ? "active" : ""}`
+  if (!editor) return null;
+  const headingLevels: (1 | 2 | 3)[] = [1, 2, 3];
+  const btn = (active: boolean) => `toolbar-button ${active ? "active" : ""}`;
 
   return (
     <div className="editor-toolbar">
@@ -42,18 +38,16 @@ export default function EditorToolbar({ editor, disabled }: Props) {
 
       <span className="toolbar-divider" />
 
-        {headingLevels.map(level => (
+      {headingLevels.map((level) => (
         <button
-            key={level}
-            className={btn(editor.isActive("heading", { level }))}
-            onClick={() =>
-            editor.chain().focus().toggleHeading({ level }).run()
-            }
-            disabled={disabled}
+          key={level}
+          className={btn(editor.isActive("heading", { level }))}
+          onClick={() => editor.chain().focus().toggleHeading({ level }).run()}
+          disabled={disabled}
         >
-            H{level}
+          H{level}
         </button>
-        ))}
+      ))}
 
       <span className="toolbar-divider" />
 
@@ -89,5 +83,5 @@ export default function EditorToolbar({ editor, disabled }: Props) {
         Redo
       </button>
     </div>
-  )
+  );
 }

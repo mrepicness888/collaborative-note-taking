@@ -1,58 +1,56 @@
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { supabase } from "../lib/supabase"
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 import * as Y from "yjs";
 
 type DocumentRow = {
-  id: string
-  title: string
-  room_id: string
-  updated_at: string
-}
+  id: string;
+  title: string;
+  room_id: string;
+  updated_at: string;
+};
 
 export default function Dashboard() {
-  const [docs, setDocs] = useState<DocumentRow[]>([])
-  const [title, setTitle] = useState("")
-  const [role, setRole] = useState("")
-  const navigate = useNavigate()
+  const [docs, setDocs] = useState<DocumentRow[]>([]);
+  const [title, setTitle] = useState("");
+  const [role, setRole] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadDocs = async () => {
       const { data } = await supabase
         .from("documents")
         .select("id, title, room_id, updated_at")
-        .order("updated_at", { ascending: false })
+        .order("updated_at", { ascending: false });
 
-      setDocs(data ?? [])
-    }
+      setDocs(data ?? []);
+    };
 
     const fetchAccountRole = async () => {
-      const { data: auth } = await supabase.auth.getUser()
-      const user = auth.user
-      if (!user) return
+      const { data: auth } = await supabase.auth.getUser();
+      const user = auth.user;
+      if (!user) return;
 
       const { data } = await supabase
         .from("profiles")
         .select("account_role")
         .eq("user_id", user.id)
-        .single()
+        .single();
 
-      setRole(data?.account_role ?? null)
-    }
+      setRole(data?.account_role ?? null);
+    };
 
-    loadDocs()
-    fetchAccountRole()
-    
-  }, [])
+    loadDocs();
+    fetchAccountRole();
+  }, []);
 
   const handleCreateDocument = async () => {
-    console.log("being called")
+    console.log("being called");
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
-    if (!user) return
-
+    if (!user) return;
 
     const ydoc = new Y.Doc();
 
@@ -67,47 +65,41 @@ export default function Dashboard() {
         content: base64,
       })
       .select()
-      .single()
-
+      .single();
 
     if (docError || document == null) {
-      console.error("Failed to create document:", docError)
-      return
+      console.error("Failed to create document:", docError);
+      return;
     }
 
-    
-      const { data: existingMembership } = await supabase
+    const { data: existingMembership } = await supabase
+      .from("document_memberships")
+      .select()
+      .eq("document_id", document.id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!existingMembership) {
+      const { error: membershipError } = await supabase
         .from("document_memberships")
-        .select()
-        .eq("document_id", document.id)
-        .eq("user_id", user.id)
-        .single();
+        .insert({
+          document_id: document.id,
+          user_id: user.id,
+          role: "lecturer",
+        });
 
-      if (!existingMembership) {
-        const { error: membershipError } = await supabase
-          .from("document_memberships")
-          .insert({
-            document_id: document.id,
-            user_id: user.id,
-            role: "lecturer",
-          });
-
-        if (membershipError) {
-          console.error("Failed to assign lecturer role:", membershipError);
-          return;
-        }
+      if (membershipError) {
+        console.error("Failed to assign lecturer role:", membershipError);
+        return;
       }
+    }
 
-
-    console.log(document)
+    console.log(document);
 
     navigate(`/docs/${document.id}`);
-
-    
-  }
+  };
   return (
     <div className="dashboard-page">
-
       <header className="dashboard-header">
         <div>
           <h1>Collabrative Note Taking</h1>
@@ -122,7 +114,7 @@ export default function Dashboard() {
               className="create-input"
               placeholder="New Document title..."
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
             />
             <button className="primary-button" onClick={handleCreateDocument}>
               Create Document
@@ -158,13 +150,12 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="documents-grid">
-            {docs.map(doc => (
+            {docs.map((doc) => (
               <div key={doc.id} className="document-card">
                 <div className="document-info">
                   <h3 className="centre">{doc.title}</h3>
                   <p className="document-meta">
-                    Last updated:{" "}
-                    {new Date(doc.updated_at).toLocaleString()}
+                    Last updated: {new Date(doc.updated_at).toLocaleString()}
                   </p>
                 </div>
 
@@ -180,6 +171,5 @@ export default function Dashboard() {
         )}
       </section>
     </div>
-  )
-
+  );
 }

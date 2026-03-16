@@ -56,7 +56,7 @@
   padding: 1rem;
   border-radius: 10px;
   flex: 1;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   text-align: center;
 }
 
@@ -74,11 +74,11 @@
   background: white;
   padding: 1rem;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   justify-content: space-between;
   align-items: center;
-flex-direction: column;
+  flex-direction: column;
 }
 
 .document-card h3 {
@@ -107,10 +107,9 @@ flex-direction: column;
   padding: 2rem;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
-                   
+
 .centre {
-    text-align: center;
-    
+  text-align: center;
 }

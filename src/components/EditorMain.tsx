@@ -1,126 +1,137 @@
-import { useEffect, useRef, useState } from "react"
-import { useYjs, type MarginNote, type Question, type Suggestion } from "../hooks/useYjs"
-import { useNavigate } from "react-router-dom"
-import { supabase } from "../lib/supabase"
-import InviteButton from "./InviteButton"
+import { useEffect, useRef, useState } from "react";
+import {
+  useYjs,
+  type MarginNote,
+  type Question,
+  type Suggestion,
+} from "../hooks/useYjs";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
+import InviteButton from "./InviteButton";
 import PresenceBar from "./PresenceBar";
-import RichTextEditor from "./RichTextEditor"
-import { Editor } from "@tiptap/react"
+import RichTextEditor from "./RichTextEditor";
+import { Editor } from "@tiptap/react";
 
 interface Props {
-  roomID: string,
+  roomID: string;
 }
 
-type EditorMode = "lecture" | "discussion" | "revision"
+type EditorMode = "lecture" | "discussion" | "revision";
 
-type Role = "lecturer" | "student"
+type Role = "lecturer" | "student";
 
 export default function EditorMain(props: Props) {
-  const navigate = useNavigate()
-  const { ydoc, ytext, ymeta, yquestions, ymargin, ysuggestions, awarenessRef, ready } = useYjs(props.roomID)
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
-  const [mode, setMode] = useState<EditorMode>("discussion")
-  const [title, setTitle] = useState<string>("")
-  const [role, setRole] = useState<Role | null>(null)
-  const [roleLoading, setRoleLoading] = useState(true)
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [marginNotes, setMarginNotes] = useState<MarginNote[]>([])
-  const [highlightPos, setHighlightPos] = useState<number | null>(null)
-  const [editorInstance, setEditorInstance] = useState<Editor | null>(null)
+  const navigate = useNavigate();
+  const {
+    ydoc,
+    ytext,
+    ymeta,
+    yquestions,
+    ymargin,
+    ysuggestions,
+    awarenessRef,
+    ready,
+  } = useYjs(props.roomID);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [mode, setMode] = useState<EditorMode>("discussion");
+  const [title, setTitle] = useState<string>("");
+  const [role, setRole] = useState<Role | null>(null);
+  const [roleLoading, setRoleLoading] = useState(true);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [marginNotes, setMarginNotes] = useState<MarginNote[]>([]);
+  const [highlightPos, setHighlightPos] = useState<number | null>(null);
+  const [editorInstance, setEditorInstance] = useState<Editor | null>(null);
   const [suggestionDraft, setSuggestionDraft] = useState<{
-    from: number
-    to: number
-    original: string
-    replacement: string
-  } | null>(null)
+    from: number;
+    to: number;
+    original: string;
+    replacement: string;
+  } | null>(null);
 
   useEffect(() => {
     const update = () => {
-      setMarginNotes(ymargin.toArray())
-    }
+      setMarginNotes(ymargin.toArray());
+    };
 
-    ymargin.observe(update)
-    update()
+    ymargin.observe(update);
+    update();
 
-    return () => ymargin.unobserve(update)
-  }, [ymargin])
-
+    return () => ymargin.unobserve(update);
+  }, [ymargin]);
 
   useEffect(() => {
     const update = () => {
-      setQuestions(yquestions.toArray())
-    }
+      setQuestions(yquestions.toArray());
+    };
 
-    yquestions.observe(update)
-    update()
+    yquestions.observe(update);
+    update();
 
-    return () => yquestions.unobserve(update)
-  }, [yquestions])
+    return () => yquestions.unobserve(update);
+  }, [yquestions]);
 
   useEffect(() => {
-    if (!ready) return
+    if (!ready) return;
 
     const updateMode = () => {
-      const current = ymeta.get("mode") as EditorMode
-      setMode(current ?? "discussion")
-    }
+      const current = ymeta.get("mode") as EditorMode;
+      setMode(current ?? "discussion");
+    };
 
-    updateMode()
-    ymeta.observe(updateMode)
+    updateMode();
+    ymeta.observe(updateMode);
 
     return () => {
-      ymeta.unobserve(updateMode)
-    }
-  }, [ready, ymeta])
+      ymeta.unobserve(updateMode);
+    };
+  }, [ready, ymeta]);
 
   useEffect(() => {
     const fetchRole = async () => {
-      if (!props.roomID) return
+      if (!props.roomID) return;
 
       const { data, error } = await supabase
         .from("document_memberships")
         .select("role")
         .eq("document_id", props.roomID)
-        .maybeSingle()
+        .maybeSingle();
 
-        
       if (error || !data) {
-        console.log("Route documentId:", props.roomID)
-        console.log(error)
-        console.log(data)
+        console.log("Route documentId:", props.roomID);
+        console.log(error);
+        console.log(data);
         const {
           data: { user },
-        } = await supabase.auth.getUser()
+        } = await supabase.auth.getUser();
 
-        console.log("Auth user id:", user?.id)
-        setRole(null)
+        console.log("Auth user id:", user?.id);
+        setRole(null);
       } else {
-        console.log("working")
-        setRole(data.role)
+        console.log("working");
+        setRole(data.role);
       }
 
-      setRoleLoading(false)
-    }
+      setRoleLoading(false);
+    };
 
-    fetchRole()
-    
-  }, [props.roomID])
+    fetchRole();
+  }, [props.roomID]);
 
   useEffect(() => {
-  const loadMeta = async () => {
-    const { data } = await supabase
-      .from("documents")
-      .select("title")
-      .eq("id", props.roomID)
-      .single()
+    const loadMeta = async () => {
+      const { data } = await supabase
+        .from("documents")
+        .select("title")
+        .eq("id", props.roomID)
+        .single();
 
-    if (data?.title) {
-      setTitle(data.title)
-    }
-  }
+      if (data?.title) {
+        setTitle(data.title);
+      }
+    };
 
-  loadMeta()
-}, [props.roomID])
+    loadMeta();
+  }, [props.roomID]);
 
   // useEffect(() => {
   //   if (!ready) return
@@ -135,41 +146,42 @@ export default function EditorMain(props: Props) {
   // }, [ytext, ready])
 
   useEffect(() => {
-    if (!ready) return
+    if (!ready) return;
 
-    const awareness = awarenessRef.current
-    if (!awareness) return
+    const awareness = awarenessRef.current;
+    if (!awareness) return;
 
     const setUserState = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    awareness.setLocalStateField("user", {
-      name: user?.user_metadata?.full_name ?? user?.email ?? "Anonymous",
-      color: "#" + Math.floor(Math.random() * 16777215).toString(16),
-      role: role === "lecturer" ? "Lecturer" : "Student",
-    });
-  };
+      awareness.setLocalStateField("user", {
+        name: user?.user_metadata?.full_name ?? user?.email ?? "Anonymous",
+        color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+        role: role === "lecturer" ? "Lecturer" : "Student",
+      });
+    };
 
-  setUserState();
-
-  }, [awarenessRef, ready, role])
+    setUserState();
+  }, [awarenessRef, ready, role]);
 
   if (!ready) {
-    return <div>Loading document…</div>
+    return <div>Loading document…</div>;
   }
 
   if (roleLoading) {
-    return <div>Loading document…</div>
+    return <div>Loading document…</div>;
   }
 
   if (!role) {
-    console.log("Role for this document:", role)
-    return <div>Access denied</div>
+    console.log("Role for this document:", role);
+    return <div>Access denied</div>;
   }
-  
+
   const setEditorMode = (newMode: EditorMode) => {
-    ymeta.set("mode", newMode)
-  }
+    ymeta.set("mode", newMode);
+  };
 
   // const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
   //   const value = e.target.value
@@ -196,159 +208,158 @@ export default function EditorMain(props: Props) {
   // }
 
   const handleAddMarginNote = () => {
-    const textarea = textareaRef.current
-    if (!textarea) return
+    const textarea = textareaRef.current;
+    if (!textarea) return;
 
-    const index = textarea.selectionStart
-    if (index === null) return
+    const index = textarea.selectionStart;
+    if (index === null) return;
 
-    const text = prompt("Add margin note")
-    if (!text) return
+    const text = prompt("Add margin note");
+    if (!text) return;
 
-    ymargin.push([{
-      id: crypto.randomUUID(),
-      author: "Anonymous",
-      text,
-      anchorIndex: index,
-      resolved: false,
-      // eslint-disable-next-line react-hooks/purity
-      createdAt: Date.now(),
-    }])
-  }
+    ymargin.push([
+      {
+        id: crypto.randomUUID(),
+        author: "Anonymous",
+        text,
+        anchorIndex: index,
+        resolved: false,
+        // eslint-disable-next-line react-hooks/purity
+        createdAt: Date.now(),
+      },
+    ]);
+  };
 
   const addQuestion = (text: string) => {
-    if (!text.trim()) return
+    if (!text.trim()) return;
 
-    yquestions.push([{
-      id: crypto.randomUUID(),
-      author: "Anonymous",
-      text,
-      timestamp: Date.now(),
-    }])
-  }
+    yquestions.push([
+      {
+        id: crypto.randomUUID(),
+        author: "Anonymous",
+        text,
+        timestamp: Date.now(),
+      },
+    ]);
+  };
 
-  const canEditMainText = mode === "discussion" || (mode === "lecture" && role === "lecturer")
-  console.log(mode)
-  console.log(canEditMainText)
+  const canEditMainText =
+    mode === "discussion" || (mode === "lecture" && role === "lecturer");
+  console.log(mode);
+  console.log(canEditMainText);
 
   const highlightAnchor = (index: number) => {
-    setHighlightPos(index)
-    setTimeout(() => setHighlightPos(null), 800)
-  }
+    setHighlightPos(index);
+    setTimeout(() => setHighlightPos(null), 800);
+  };
 
   const jumpToAnchor = (index: number) => {
-    const textarea = textareaRef.current
-    if (!textarea) return
+    const textarea = textareaRef.current;
+    if (!textarea) return;
 
-    textarea.focus()
-    textarea.setSelectionRange(index, index)
+    textarea.focus();
+    textarea.setSelectionRange(index, index);
 
-    const lineHeight = 24
-    const linesBefore = textarea.value.slice(0, index).split("\n").length
-    textarea.scrollTop = Math.max(0, (linesBefore - 3) * lineHeight)
+    const lineHeight = 24;
+    const linesBefore = textarea.value.slice(0, index).split("\n").length;
+    textarea.scrollTop = Math.max(0, (linesBefore - 3) * lineHeight);
 
-    highlightAnchor(index)
-  }
+    highlightAnchor(index);
+  };
 
   const getCursorTopOffset = (index: number) => {
-    const textarea = textareaRef.current
-    if (!textarea) return 0
+    const textarea = textareaRef.current;
+    if (!textarea) return 0;
 
-    const textBefore = textarea.value.slice(0, index)
-    const lineCount = textBefore.split("\n").length
-    const lineHeight = 24
+    const textBefore = textarea.value.slice(0, index);
+    const lineCount = textBefore.split("\n").length;
+    const lineHeight = 24;
 
-    return lineCount * lineHeight
-  }
+    return lineCount * lineHeight;
+  };
 
   const openSuggestionModal = ({
     from,
     to,
-    selectedText
+    selectedText,
   }: {
-    from: number
-    to: number
-    selectedText: string
+    from: number;
+    to: number;
+    selectedText: string;
   }) => {
     setSuggestionDraft({
       from,
       to,
       original: selectedText,
-      replacement: ""
-    })
-  }
+      replacement: "",
+    });
+  };
 
   const handleCreateSuggestion = async () => {
-    console.log("being called")
-    console.log(editorInstance)
-    if (!editorInstance) return
+    console.log("being called");
+    console.log(editorInstance);
+    if (!editorInstance) return;
 
-    console.log("not being returned")
+    console.log("not being returned");
 
-    const { from, to } = editorInstance.state.selection
+    const { from, to } = editorInstance.state.selection;
 
     if (from === to) {
-      alert("Please select text to suggest a revision.")
-      return
+      alert("Please select text to suggest a revision.");
+      return;
     }
 
-    const selectedText = editorInstance.state.doc.textBetween(
-      from,
-      to,
-      " "
-    )
+    const selectedText = editorInstance.state.doc.textBetween(from, to, " ");
 
     openSuggestionModal({
       from,
       to,
-      selectedText
-    })
-  }
+      selectedText,
+    });
+  };
 
   const handleAcceptSuggestion = (s: Suggestion) => {
-    if (s.resolved) return
+    if (s.resolved) return;
 
-    const index = ysuggestions.toArray().findIndex(x => x.id === s.id)
-    if (index === -1) return
+    const index = ysuggestions.toArray().findIndex((x) => x.id === s.id);
+    if (index === -1) return;
 
     ytext.doc?.transact(() => {
-      ytext.delete(s.from, s.to - s.from)
-      ytext.insert(s.from, s.text)
+      ytext.delete(s.from, s.to - s.from);
+      ytext.insert(s.from, s.text);
 
       const updated = {
         ...s,
         resolved: true,
-        accepted: true
-      }
+        accepted: true,
+      };
 
-      ysuggestions.delete(index, 1)
-      ysuggestions.insert(index, [updated])
-    })
-  }
+      ysuggestions.delete(index, 1);
+      ysuggestions.insert(index, [updated]);
+    });
+  };
 
   return (
     <div className="editor-page">
-
       <header className="editor-topbar">
-        <button onClick={() => navigate("/dashboard")} className="back-button">Back to Dashboard</button>
+        <button onClick={() => navigate("/dashboard")} className="back-button">
+          Back to Dashboard
+        </button>
 
         <div className="editor-meta">
           <span className="document-title">{title}</span>
           {role === "student" && (
             <span className="lecture-indicator">{mode}</span>
           )}
-          {role === "lecturer" && (
-            <InviteButton documentId={props.roomID} />
-          )}
+          {role === "lecturer" && <InviteButton documentId={props.roomID} />}
         </div>
-
 
         {role === "lecturer" && (
           <div className="editor-actions">
             <select
               className="mode-select"
               value={mode}
-              onChange={e => setEditorMode(e.target.value as EditorMode)}
+              onChange={(e) => setEditorMode(e.target.value as EditorMode)}
             >
               <option value="lecture">Lecture Mode</option>
               <option value="discussion">Discussion Mode</option>
@@ -358,10 +369,7 @@ export default function EditorMain(props: Props) {
         )}
 
         {mode === "revision" && (
-          <button
-            className="suggest-btn"
-            onClick={handleCreateSuggestion}
-          >
+          <button className="suggest-btn" onClick={handleCreateSuggestion}>
             Suggest Change
           </button>
         )}
@@ -376,7 +384,7 @@ export default function EditorMain(props: Props) {
               <h3>Questions</h3>
 
               <div className="questions-list">
-                {questions.map(q => (
+                {questions.map((q) => (
                   <div key={q.id} className="question">
                     <div className="question-author">{q.author}</div>
                     <div className="question-text">{q.text}</div>
@@ -388,10 +396,10 @@ export default function EditorMain(props: Props) {
                 <input
                   className="question-input"
                   placeholder="Ask a question…"
-                  onKeyDown={e => {
+                  onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      addQuestion(e.currentTarget.value)
-                      e.currentTarget.value = ""
+                      addQuestion(e.currentTarget.value);
+                      e.currentTarget.value = "";
                     }
                   }}
                 />
@@ -400,8 +408,12 @@ export default function EditorMain(props: Props) {
           )}
           <div className="panel">
             <h3>Margin Notes</h3>
-            {marginNotes.map(note => (
-              <div key={note.id} className="margin-note" onClick={() => jumpToAnchor(note.anchorIndex)}>
+            {marginNotes.map((note) => (
+              <div
+                key={note.id}
+                className="margin-note"
+                onClick={() => jumpToAnchor(note.anchorIndex)}
+              >
                 <strong>{note.author}</strong>
                 <div>{note.text}</div>
               </div>
@@ -430,8 +442,10 @@ export default function EditorMain(props: Props) {
               )}
 
               {ysuggestions.map((s) => (
-                <div key={s.id} className={`suggestion-card ${s.resolved ? "resolved" : ""}`}>
-                  
+                <div
+                  key={s.id}
+                  className={`suggestion-card ${s.resolved ? "resolved" : ""}`}
+                >
                   <div className="suggestion-meta">
                     <span className="author">{s.author}</span>
                   </div>
@@ -472,18 +486,23 @@ export default function EditorMain(props: Props) {
           )}
         </aside>
 
-
         <main className="editor-main">
           <h2 style={{ margin: 0 }}>{title || "Untitled document"}</h2>
           <>{console.log(ytext.doc)}</>
-          {ready && <RichTextEditor ydoc={ydoc} ytext={ytext} editable={canEditMainText} onEditorReady={setEditorInstance} />}
+          {ready && (
+            <RichTextEditor
+              ydoc={ydoc}
+              ytext={ytext}
+              editable={canEditMainText}
+              onEditorReady={setEditorInstance}
+            />
+          )}
         </main>
       </div>
 
       {suggestionDraft && (
         <div className="modal-overlay">
           <div className="modal">
-
             <h3>Suggest Revision</h3>
 
             <div className="diff-preview">
@@ -492,7 +511,8 @@ export default function EditorMain(props: Props) {
               </p>
 
               <p className="replacement">
-                <strong>Replacement:</strong> {suggestionDraft.replacement || "—"}
+                <strong>Replacement:</strong>{" "}
+                {suggestionDraft.replacement || "—"}
               </p>
             </div>
 
@@ -503,7 +523,7 @@ export default function EditorMain(props: Props) {
               onChange={(e) =>
                 setSuggestionDraft({
                   ...suggestionDraft,
-                  replacement: e.target.value
+                  replacement: e.target.value,
                 })
               }
             />
@@ -519,8 +539,8 @@ export default function EditorMain(props: Props) {
               <button
                 className="confirm-btn"
                 onClick={async () => {
-                  const user = (await supabase.auth.getUser()).data.user
-                  if (!user) return
+                  const user = (await supabase.auth.getUser()).data.user;
+                  if (!user) return;
 
                   ysuggestions.push([
                     {
@@ -531,20 +551,19 @@ export default function EditorMain(props: Props) {
                       text: suggestionDraft.replacement.trim(),
                       resolved: false,
                       accepted: false,
-                      votes: []
-                    }
-                  ])
+                      votes: [],
+                    },
+                  ]);
 
-                  setSuggestionDraft(null)
+                  setSuggestionDraft(null);
                 }}
               >
                 Submit Suggestion
               </button>
             </div>
-
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }

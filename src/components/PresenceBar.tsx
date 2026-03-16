@@ -15,7 +15,7 @@ type UserState = {
 };
 
 type UserPresence = {
-  id: number; 
+  id: number;
   name: string;
   role: "Lecturer" | "Student";
   color: string;
@@ -26,9 +26,17 @@ export default function PresenceBar({ awareness }: Props) {
   const [users, setUsers] = useState<UserPresence[]>([]);
 
   const generateColor = (name: string) => {
-    const colors = ["#1abc9c", "#3498db", "#9b59b6", "#e67e22", "#e74c3c", "#f1c40f"];
+    const colors = [
+      "#1abc9c",
+      "#3498db",
+      "#9b59b6",
+      "#e67e22",
+      "#e74c3c",
+      "#f1c40f",
+    ];
     let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    for (let i = 0; i < name.length; i++)
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return colors[Math.abs(hash) % colors.length];
   };
 
@@ -36,11 +44,13 @@ export default function PresenceBar({ awareness }: Props) {
     if (!awareness) return;
 
     const updateUsers = () => {
-      const states: [number, UserState][] = Array.from(awareness.getStates().entries());
+      const states: [number, UserState][] = Array.from(
+        awareness.getStates().entries(),
+      );
 
       const mapped: UserPresence[] = states.map(([id, state]) => {
         const user = state.user;
-        console.log(user)
+        console.log(user);
 
         return {
           id,

@@ -1,33 +1,33 @@
-import { useState } from "react"
-import { supabase } from "../lib/supabase"
-import { useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { supabase } from "../lib/supabase";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const signUp = async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     const { error } = await supabase.auth.signUp({
       email,
       password,
-    })
+    });
 
     if (error) {
-      setError(error.message)
+      setError(error.message);
     } else {
-      alert("Signup successful! You can now log in.")
-      navigate("/login", { replace: true })
+      alert("Signup successful! You can now log in.");
+      navigate("/login", { replace: true });
     }
 
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <div style={{ maxWidth: 400, margin: "2rem auto" }}>
@@ -37,7 +37,7 @@ export default function Signup() {
         type="email"
         placeholder="Email"
         value={email}
-        onChange={e => setEmail(e.target.value)}
+        onChange={(e) => setEmail(e.target.value)}
         style={{ display: "block", width: "100%", marginBottom: "1rem" }}
       />
 
@@ -45,7 +45,7 @@ export default function Signup() {
         type="password"
         placeholder="Password"
         value={password}
-        onChange={e => setPassword(e.target.value)}
+        onChange={(e) => setPassword(e.target.value)}
         style={{ display: "block", width: "100%", marginBottom: "1rem" }}
       />
 
@@ -55,9 +55,9 @@ export default function Signup() {
         {loading ? "Signing up..." : "Sign Up"}
       </button>
 
-    <p style={{ marginTop: "1rem" }}>
+      <p style={{ marginTop: "1rem" }}>
         ALready have an account? <a href="/login">Login</a>
       </p>
     </div>
-  )
+  );
 }

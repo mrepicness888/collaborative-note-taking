@@ -6,7 +6,7 @@
   -webkit-animation: AnimationName 3s ease infinite;
   -moz-animation: AnimationName 3s ease infinite;
   animation: AnimationName 3s ease infinite;
-  transition: .4s ease-in-out;
+  transition: 0.4s ease-in-out;
   border-radius: 7px;
   cursor: pointer;
 }
@@ -15,7 +15,7 @@
   display: flex;
   justify-content: flex-end;
   opacity: 0;
-  transition: .2s ease-in-out;
+  transition: 0.2s ease-in-out;
 }
 
 .fl:hover .fullscreen {
@@ -36,15 +36,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: .2s ease-in-out;
-  box-shadow: 2px 2px 6px rgba(0,0,0,.4);
+  transition: 0.2s ease-in-out;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .fullscreen_svg {
   width: 15px;
   height: 15px;
   fill: rgb(177, 176, 176);
-  transition: .2s ease-in-out;
+  transition: 0.2s ease-in-out;
 }
 
 .card_back {
@@ -55,7 +55,7 @@
   border-radius: 7px;
   margin-top: -4.7em;
   margin-left: 0.7em;
-  transition: .2s ease-in-out;
+  transition: 0.2s ease-in-out;
   z-index: -1;
 }
 
@@ -108,7 +108,7 @@
 .btns {
   display: flex;
   gap: 0.5em;
-  transition: .2s ease-in-out;
+  transition: 0.2s ease-in-out;
 }
 
 .likes {
@@ -121,7 +121,7 @@
   margin-top: -0.5em;
   opacity: 0;
   background-color: #444857;
-  transition: .2s ease-in-out;
+  transition: 0.2s ease-in-out;
 }
 
 .likes_text {
@@ -138,7 +138,7 @@
 }
 
 .likes:hover {
-  background-color: #5A5F73;
+  background-color: #5a5f73;
   cursor: pointer;
 }
 
@@ -152,7 +152,7 @@
   margin-top: -0.5em;
   opacity: 0;
   background-color: #444857;
-  transition: .24s ease-in-out;
+  transition: 0.24s ease-in-out;
 }
 
 .comments_text {
@@ -169,7 +169,7 @@
 }
 
 .comments:hover {
-  background-color: #5A5F73;
+  background-color: #5a5f73;
   cursor: pointer;
 }
 
@@ -183,7 +183,7 @@
   margin-top: -0.5em;
   opacity: 0;
   background-color: #444857;
-  transition: .28s ease-in-out;
+  transition: 0.28s ease-in-out;
 }
 
 .views_text {
@@ -200,7 +200,7 @@
 }
 
 .views:hover {
-  background-color: #5A5F73;
+  background-color: #5a5f73;
   cursor: pointer;
 }
 
@@ -218,8 +218,6 @@
   margin-top: 0.5em;
   opacity: 1;
 }
-
-
 
 /* The Main Switch */
 
@@ -241,7 +239,7 @@ button {
   border: 1px solid white;
   background-color: transparent;
   color: white;
-  transition: .4s ease-in-out;
+  transition: 0.4s ease-in-out;
 }
 
 button::after {
@@ -257,7 +255,7 @@ button::before {
   opacity: 0;
   left: 1.6em;
   top: -0.36em;
-  transition: .4s ease-in-out;
+  transition: 0.4s ease-in-out;
 }
 
 button:hover {
@@ -279,15 +277,15 @@ button:hover::after {
 
 @keyframes AnimationName {
   0% {
-    background-position: 0% 50%
+    background-position: 0% 50%;
   }
 
   50% {
-    background-position: 100% 50%
+    background-position: 100% 50%;
   }
 
   100% {
-    background-position: 0% 50%
+    background-position: 0% 50%;
   }
 }
 
@@ -295,7 +293,15 @@ button:active {
   scale: 1.1;
   opacity: 1;
   color: transparent;
-  background: linear-gradient(90deg, #ce68d9, #45c6db, #45db79, #9f45b0, #e54ed0, #ffe4f2);
+  background: linear-gradient(
+    90deg,
+    #ce68d9,
+    #45c6db,
+    #45db79,
+    #9f45b0,
+    #e54ed0,
+    #ffe4f2
+  );
   background-size: 800% 800%;
   -webkit-animation: AnimationName 1s ease infinite;
   -moz-animation: AnimationName 1s ease infinite;
