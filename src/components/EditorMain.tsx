@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useYjs,
-  type MarginNote,
   type Question,
   type Suggestion,
 } from "../hooks/useYjs";
@@ -27,19 +26,15 @@ export default function EditorMain(props: Props) {
     ytext,
     ymeta,
     yquestions,
-    ymargin,
     ysuggestions,
-    awarenessRef,
+    awareness,
     ready,
   } = useYjs(props.roomID);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [mode, setMode] = useState<EditorMode>("discussion");
   const [title, setTitle] = useState<string>("");
   const [role, setRole] = useState<Role | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [marginNotes, setMarginNotes] = useState<MarginNote[]>([]);
-  const [highlightPos, setHighlightPos] = useState<number | null>(null);
   const [editorInstance, setEditorInstance] = useState<Editor | null>(null);
   const [suggestionDraft, setSuggestionDraft] = useState<{
     from: number;
@@ -47,17 +42,6 @@ export default function EditorMain(props: Props) {
     original: string;
     replacement: string;
   } | null>(null);
-
-  useEffect(() => {
-    const update = () => {
-      setMarginNotes(ymargin.toArray());
-    };
-
-    ymargin.observe(update);
-    update();
-
-    return () => ymargin.unobserve(update);
-  }, [ymargin]);
 
   useEffect(() => {
     const update = () => {
@@ -133,22 +117,10 @@ export default function EditorMain(props: Props) {
     loadMeta();
   }, [props.roomID]);
 
-  // useEffect(() => {
-  //   if (!ready) return
-
-  //   const update = () => {
-  //     setText(ytext.toString())
-  //   }
-
-  //   update()
-  //   ytext.observe(update)
-  //   return () => ytext.unobserve(update)
-  // }, [ytext, ready])
 
   useEffect(() => {
     if (!ready) return;
 
-    const awareness = awarenessRef.current;
     if (!awareness) return;
 
     const setUserState = async () => {
@@ -164,7 +136,7 @@ export default function EditorMain(props: Props) {
     };
 
     setUserState();
-  }, [awarenessRef, ready, role]);
+  }, [awareness, ready, role]);
 
   if (!ready) {
     return <div>Loading document…</div>;
@@ -183,52 +155,6 @@ export default function EditorMain(props: Props) {
     ymeta.set("mode", newMode);
   };
 
-  // const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-  //   const value = e.target.value
-  //   const oldValue = ytext.toString()
-
-  //   if (value === oldValue) return
-
-  //   ytext.doc?.transact(() => {
-  //     const minLen = Math.min(value.length, oldValue.length)
-
-  //     let index = 0
-  //     while (index < minLen && value[index] === oldValue[index]) {
-  //       index++
-  //     }
-
-  //     if (oldValue.length > index) {
-  //       ytext.delete(index, oldValue.length - index)
-  //     }
-
-  //     if (value.length > index) {
-  //       ytext.insert(index, value.slice(index))
-  //     }
-  //   })
-  // }
-
-  const handleAddMarginNote = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const index = textarea.selectionStart;
-    if (index === null) return;
-
-    const text = prompt("Add margin note");
-    if (!text) return;
-
-    ymargin.push([
-      {
-        id: crypto.randomUUID(),
-        author: "Anonymous",
-        text,
-        anchorIndex: index,
-        resolved: false,
-        // eslint-disable-next-line react-hooks/purity
-        createdAt: Date.now(),
-      },
-    ]);
-  };
 
   const addQuestion = (text: string) => {
     if (!text.trim()) return;
@@ -239,6 +165,7 @@ export default function EditorMain(props: Props) {
         author: "Anonymous",
         text,
         timestamp: Date.now(),
+        resolved: false,
       },
     ]);
   };
@@ -248,35 +175,19 @@ export default function EditorMain(props: Props) {
   console.log(mode);
   console.log(canEditMainText);
 
-  const highlightAnchor = (index: number) => {
-    setHighlightPos(index);
-    setTimeout(() => setHighlightPos(null), 800);
-  };
+  const ToggleQuestion = (id: string) => {
+    const questions = ydoc.getArray("questions")
 
-  const jumpToAnchor = (index: number) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+    const index = questions.toArray().findIndex(q => q.id === id)
+    if (index === -1) return
 
-    textarea.focus();
-    textarea.setSelectionRange(index, index);
+    const question = questions.get(index)
+    question.resolved = !question.resolved
 
-    const lineHeight = 24;
-    const linesBefore = textarea.value.slice(0, index).split("\n").length;
-    textarea.scrollTop = Math.max(0, (linesBefore - 3) * lineHeight);
+    questions.delete(index, 1)
+    questions.insert(index, [question])
+  }
 
-    highlightAnchor(index);
-  };
-
-  const getCursorTopOffset = (index: number) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return 0;
-
-    const textBefore = textarea.value.slice(0, index);
-    const lineCount = textBefore.split("\n").length;
-    const lineHeight = 24;
-
-    return lineCount * lineHeight;
-  };
 
   const openSuggestionModal = ({
     from,
@@ -320,6 +231,8 @@ export default function EditorMain(props: Props) {
 
   const handleAcceptSuggestion = (s: Suggestion) => {
     if (s.resolved) return;
+
+    console.log("Accepting suggestion:", s);
 
     const index = ysuggestions.toArray().findIndex((x) => x.id === s.id);
     if (index === -1) return;
@@ -374,7 +287,7 @@ export default function EditorMain(props: Props) {
           </button>
         )}
 
-        <PresenceBar awareness={awarenessRef.current!} />
+        <PresenceBar awareness={awareness!} />
       </header>
 
       <div className="editor-layout">
@@ -385,9 +298,23 @@ export default function EditorMain(props: Props) {
 
               <div className="questions-list">
                 {questions.map((q) => (
-                  <div key={q.id} className="question">
+                  <div key={q.id}  className={`question ${q.resolved ? "resolved" : ""}`}>
                     <div className="question-author">{q.author}</div>
                     <div className="question-text">{q.text}</div>
+
+                    {!q.resolved && role === "lecturer" && (
+                      <button onClick={() => ToggleQuestion(q.id)}>
+                        Resolve
+                      </button>
+                    )}
+
+                    {q.resolved && <span className="resolved-label">Resolved</span>}
+
+                    {q.resolved && role === "lecturer" && (
+                      <button onClick={() => ToggleQuestion(q.id)}>
+                        Reopen Question
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -405,32 +332,6 @@ export default function EditorMain(props: Props) {
                 />
               )}
             </div>
-          )}
-          <div className="panel">
-            <h3>Margin Notes</h3>
-            {marginNotes.map((note) => (
-              <div
-                key={note.id}
-                className="margin-note"
-                onClick={() => jumpToAnchor(note.anchorIndex)}
-              >
-                <strong>{note.author}</strong>
-                <div>{note.text}</div>
-              </div>
-            ))}
-          </div>
-          {mode === "lecture" && (
-            <button onClick={handleAddMarginNote} className="add-button">
-              Add margin note
-            </button>
-          )}
-          {highlightPos !== null && (
-            <div
-              className="cursor-highlight"
-              style={{
-                top: getCursorTopOffset(highlightPos),
-              }}
-            />
           )}
 
           {mode === "revision" && (

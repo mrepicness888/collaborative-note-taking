@@ -67,25 +67,34 @@
 }
 
 .panel {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 0.75rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  max-width: 500px;
+  background: #fcfcfc;
+  padding: 20px;
+  border-radius: 12px;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 .panel h3 {
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-  color: #374151;
+  color: #1a202c;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #edf2f7;
+  padding-bottom: 10px;
 }
 
 .question,
 .margin-note {
-  background: #f9fafb;
-  border-radius: 6px;
-  padding: 0.5rem;
-  font-size: 0.8rem;
-  margin-bottom: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.question:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .add-button {
@@ -254,4 +263,75 @@
   color: white;
   padding: 4px 10px;
   border-radius: 999px;
+}
+
+.question-author {
+  font-size: 0.85rem;
+  color: #718096;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.question-text {
+  font-size: 1.05rem;
+  color: #2d3748;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+/* Buttons */
+.question button {
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+/* Primary "Resolve" Button */
+.question:not(.resolved) button {
+  background-color: #3182ce;
+  color: white;
+}
+
+.question:not(.resolved) button:hover {
+  background-color: #2b6cb0;
+}
+
+/* Secondary "Reopen" Button */
+.question.resolved button {
+  background-color: transparent;
+  border-color: #cbd5e0;
+  color: #4a5568;
+}
+
+.question.resolved button:hover {
+  background-color: #f7fafc;
+  border-color: #a0aec0;
+}
+
+/* Resolved State Styling */
+.question.resolved {
+  background-color: #f8fafc;
+  border-left: 4px solid #48bb78; /* Green indicator */
+}
+
+.question.resolved .question-text {
+  color: #718096;
+  text-decoration: none; /* Keep text readable, just fade it */
+}
+
+.resolved-label {
+  display: inline-block;
+  background: #def7ec;
+  color: #03543f;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 12px;
 }

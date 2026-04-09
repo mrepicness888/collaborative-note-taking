@@ -4,20 +4,12 @@ import { WebsocketProvider } from "y-websocket";
 import { supabase } from "../lib/supabase";
 import { Awareness } from "y-protocols/awareness";
 
-export type MarginNote = {
-  id: string;
-  author: string;
-  text: string;
-  anchorIndex: number;
-  resolved: boolean;
-  createdAt: number;
-};
-
 export type Question = {
   id: string;
   author: string;
   text: string;
   timestamp: number;
+  resolved: boolean;
 };
 
 export type Suggestion = {
@@ -35,10 +27,10 @@ export function useYjs(documentId: string) {
   const [ydoc] = useState(() => new Y.Doc());
   const [loaded, setLoaded] = useState(false);
   const awarenessRef = useRef<Awareness | null>(null);
+  const [awareness, setAwareness] = useState<Awareness | null>(null);
   const ymeta = ydoc.getMap("meta");
   const yquestions = ydoc.getArray<Question>("questions");
   const ysuggestions = ydoc.getArray<Suggestion>("suggestions");
-  const ymargin = ydoc.getArray<MarginNote>("margin_notes");
   const hasHydrated = useRef(false);
 
   useEffect(() => {
@@ -88,6 +80,7 @@ export function useYjs(documentId: string) {
     );
 
     awarenessRef.current = provider.awareness;
+    setAwareness(awarenessRef.current);
 
     return () => {
       provider.destroy();
@@ -140,9 +133,8 @@ export function useYjs(documentId: string) {
     ytext: ydoc.getText("content"),
     ymeta,
     yquestions,
-    ymargin,
     ysuggestions,
-    awarenessRef,
+    awareness,
     ready: loaded,
   };
 }
