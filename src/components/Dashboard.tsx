@@ -18,12 +18,17 @@ export default function Dashboard() {
 
   useEffect(() => {
     const loadDocs = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("documents")
         .select("id, title, room_id, updated_at")
         .order("updated_at", { ascending: false });
 
       setDocs(data ?? []);
+
+      if (error) {
+        console.error("Supabase Error:", error.message);
+        return;
+      }
     };
 
     const fetchAccountRole = async () => {
