@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Awareness } from "y-protocols/awareness";
 
 type Props = {
