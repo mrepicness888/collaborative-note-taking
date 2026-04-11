@@ -175,8 +175,9 @@ export default function EditorMain(props: Props) {
   console.log(mode);
   console.log(canEditMainText);
 
+  
   const ToggleQuestion = (id: string) => {
-    const questions = ydoc.getArray("questions")
+    const questions = ydoc.getArray<Question>("questions");
 
     const index = questions.toArray().findIndex(q => q.id === id)
     if (index === -1) return

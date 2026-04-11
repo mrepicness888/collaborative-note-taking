@@ -74,7 +74,7 @@ export function useYjs(documentId: string) {
     console.log("Connecting to Yjs room:", documentId);
 
     const provider = new WebsocketProvider(
-      "ws://localhost:1234",
+      import.meta.env.VITE_WS_URL,
       documentId,
       ydoc,
     );
