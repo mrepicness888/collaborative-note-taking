@@ -6,7 +6,6 @@ import * as Y from "yjs";
 type DocumentRow = {
   id: string;
   title: string;
-  room_id: string;
   updated_at: string;
 };
 
@@ -20,7 +19,7 @@ export default function Dashboard() {
     const loadDocs = async () => {
       const { data, error } = await supabase
         .from("documents")
-        .select("id, title, room_id, updated_at")
+        .select("id, title, updated_at")
         .order("updated_at", { ascending: false });
 
       setDocs(data ?? []);
