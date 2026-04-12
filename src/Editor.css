@@ -71,7 +71,7 @@
   background: #fcfcfc;
   padding: 20px;
   border-radius: 12px;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
 .panel h3 {
@@ -89,12 +89,14 @@
   border-radius: 10px;
   padding: 16px;
   margin-bottom: 16px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .question:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .add-button {
@@ -334,4 +336,45 @@
   font-size: 0.75rem;
   font-weight: 700;
   margin-right: 12px;
+}
+
+.tiptap-mathematics-render {
+  padding: 0 0.25rem;
+
+  &--editable {
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #eee;
+    }
+  }
+}
+
+.tiptap-mathematics-render {
+  border-radius: 0.25rem;
+
+  &[data-type="inline-math"] {
+    display: inline-block;
+  }
+
+  &[data-type="block-math"] {
+    display: block;
+    margin: 1rem 0;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  &.inline-math-error,
+  &.block-math-error {
+    background: var(--red-light);
+    color: var(--red);
+    border: 1px solid var(--red-dark);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+  }
+}
+
+.katex-html {
+  display: none;
 }

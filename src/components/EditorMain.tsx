@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  useYjs,
-  type Question,
-  type Suggestion,
-} from "../hooks/useYjs";
+import { useYjs, type Question, type Suggestion } from "../hooks/useYjs";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import InviteButton from "./InviteButton";
@@ -21,15 +17,8 @@ type Role = "lecturer" | "student";
 
 export default function EditorMain(props: Props) {
   const navigate = useNavigate();
-  const {
-    ydoc,
-    ytext,
-    ymeta,
-    yquestions,
-    ysuggestions,
-    awareness,
-    ready,
-  } = useYjs(props.roomID);
+  const { ydoc, ytext, ymeta, yquestions, ysuggestions, awareness, ready } =
+    useYjs(props.roomID);
   const [mode, setMode] = useState<EditorMode>("discussion");
   const [title, setTitle] = useState<string>("");
   const [role, setRole] = useState<Role | null>(null);
@@ -117,7 +106,6 @@ export default function EditorMain(props: Props) {
     loadMeta();
   }, [props.roomID]);
 
-
   useEffect(() => {
     if (!ready) return;
 
@@ -155,7 +143,6 @@ export default function EditorMain(props: Props) {
     ymeta.set("mode", newMode);
   };
 
-
   const addQuestion = (text: string) => {
     if (!text.trim()) return;
 
@@ -175,20 +162,18 @@ export default function EditorMain(props: Props) {
   console.log(mode);
   console.log(canEditMainText);
 
-  
   const ToggleQuestion = (id: string) => {
     const questions = ydoc.getArray<Question>("questions");
 
-    const index = questions.toArray().findIndex(q => q.id === id)
-    if (index === -1) return
+    const index = questions.toArray().findIndex((q) => q.id === id);
+    if (index === -1) return;
 
-    const question = questions.get(index)
-    question.resolved = !question.resolved
+    const question = questions.get(index);
+    question.resolved = !question.resolved;
 
-    questions.delete(index, 1)
-    questions.insert(index, [question])
-  }
-
+    questions.delete(index, 1);
+    questions.insert(index, [question]);
+  };
 
   const openSuggestionModal = ({
     from,
@@ -299,7 +284,10 @@ export default function EditorMain(props: Props) {
 
               <div className="questions-list">
                 {questions.map((q) => (
-                  <div key={q.id}  className={`question ${q.resolved ? "resolved" : ""}`}>
+                  <div
+                    key={q.id}
+                    className={`question ${q.resolved ? "resolved" : ""}`}
+                  >
                     <div className="question-author">{q.author}</div>
                     <div className="question-text">{q.text}</div>
 
@@ -309,7 +297,9 @@ export default function EditorMain(props: Props) {
                       </button>
                     )}
 
-                    {q.resolved && <span className="resolved-label">Resolved</span>}
+                    {q.resolved && (
+                      <span className="resolved-label">Resolved</span>
+                    )}
 
                     {q.resolved && role === "lecturer" && (
                       <button onClick={() => ToggleQuestion(q.id)}>

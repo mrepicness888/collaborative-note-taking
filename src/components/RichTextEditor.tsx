@@ -4,6 +4,7 @@ import Collaboration from "@tiptap/extension-collaboration";
 import { type Text, type Doc } from "yjs";
 import { useEffect } from "react";
 import EditorToolbar from "./EditorToolbar";
+import { InlineMath, Mathematics } from "@tiptap/extension-mathematics";
 
 interface Props {
   ydoc: Doc;
@@ -19,6 +20,45 @@ export default function RichTextEditor(props: Props) {
       StarterKit,
       Collaboration.configure({
         document: props.ydoc,
+      }),
+      Mathematics.configure({
+        blockOptions: {
+          onClick: (node, pos) => {
+            const newCalculation = prompt(
+              "Enter new calculation:",
+              node.attrs.latex,
+            );
+            if (newCalculation) {
+              editor
+                .chain()
+                .setNodeSelection(pos)
+                .updateBlockMath({ latex: newCalculation })
+                .focus()
+                .run();
+            }
+          },
+        },
+        inlineOptions: {
+          onClick: (node, pos) => {
+            const newCalculation = prompt(
+              "Enter new calculation:",
+              node.attrs.latex,
+            );
+            if (newCalculation) {
+              editor
+                .chain()
+                .setNodeSelection(pos)
+                .updateInlineMath({ latex: newCalculation })
+                .focus()
+                .run();
+            }
+          },
+        },
+      }),
+      InlineMath.configure({
+        katexOptions: {
+          output: "mathml",
+        },
       }),
     ],
   });

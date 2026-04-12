@@ -1,4 +1,5 @@
 import { Editor } from "@tiptap/react";
+import { useCallback } from "react";
 
 interface Props {
   editor: Editor | null;
@@ -6,7 +7,43 @@ interface Props {
 }
 
 export default function EditorToolbar({ editor, disabled }: Props) {
-  if (!editor) return null;
+  const onInsertInlineMath = useCallback(() => {
+    if (!editor) return;
+    const hasSelection = !editor.state.selection.empty;
+
+    if (hasSelection) {
+      const latex = editor.state.doc.textBetween(
+        editor.state.selection.from,
+        editor.state.selection.to,
+      );
+
+      editor.chain().focus().insertInlineMath({ latex }).run();
+    } else {
+      const latex = prompt("Enter block math expression:", "");
+      if (latex) {
+        return editor?.chain().insertInlineMath({ latex }).focus().run();
+      }
+    }
+  }, [editor]);
+
+  const onRemoveInlineMath = useCallback(() => {
+    editor?.chain().deleteInlineMath().focus().run();
+  }, [editor]);
+
+  const onInsertBlockMath = useCallback(() => {
+    const latex = prompt("Enter block math expression:", "");
+    if (latex) {
+      return editor?.chain().insertBlockMath({ latex }).focus().run();
+    }
+  }, [editor]);
+
+  const onRemoveBlockMath = useCallback(() => {
+    editor?.chain().deleteBlockMath().focus().run();
+  }, [editor]);
+
+  if (!editor) {
+    return null;
+  }
   const headingLevels: (1 | 2 | 3)[] = [1, 2, 3];
   const btn = (active: boolean) => `toolbar-button ${active ? "active" : ""}`;
 
@@ -82,6 +119,15 @@ export default function EditorToolbar({ editor, disabled }: Props) {
       >
         Redo
       </button>
+      <button type="button" onClick={onInsertInlineMath}>
+        Insert inline math
+      </button>
+
+      <button onClick={onRemoveInlineMath}>Remove inline math</button>
+
+      <button onClick={onInsertBlockMath}>Insert block math</button>
+
+      <button onClick={onRemoveBlockMath}>Remove block math</button>
     </div>
   );
 }
