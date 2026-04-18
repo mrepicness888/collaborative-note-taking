@@ -338,10 +338,8 @@
   margin-right: 12px;
 }
 
-.tiptap-mathematics-render {
-  padding: 0 0.25rem;
-
-  &--editable {
+  .tiptap-mathematics-render--editable {
+    padding: 0 0.25rem;
     cursor: pointer;
     transition: background 0.2s;
 
@@ -349,7 +347,6 @@
       background: #eee;
     }
   }
-}
 
 .tiptap-mathematics-render {
   border-radius: 0.25rem;
@@ -367,9 +364,9 @@
 
   &.inline-math-error,
   &.block-math-error {
-    background: var(--red-light);
-    color: var(--red);
-    border: 1px solid var(--red-dark);
+    background: #ffebe5;
+    color: #ff5c33;
+    border: 1px solid #720303;
     padding: 0.5rem;
     border-radius: 0.25rem;
   }

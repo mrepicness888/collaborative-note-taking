@@ -71,8 +71,6 @@ export function useYjs(documentId: string) {
   useEffect(() => {
     if (!loaded) return;
 
-    console.log("Connecting to Yjs room:", documentId);
-
     const provider = new WebsocketProvider(
       import.meta.env.VITE_WS_URL,
       documentId,
@@ -101,7 +99,7 @@ export function useYjs(documentId: string) {
       timeout = setTimeout(async () => {
         saving = true;
 
-        const snapshot = Y.encodeStateAsUpdate(ydoc); // Uint8Array
+        const snapshot = Y.encodeStateAsUpdate(ydoc);
         const base64 = btoa(String.fromCharCode(...snapshot));
 
         const { error } = await supabase

@@ -4,7 +4,7 @@ import Collaboration from "@tiptap/extension-collaboration";
 import { type Text, type Doc } from "yjs";
 import { useEffect } from "react";
 import EditorToolbar from "./EditorToolbar";
-import { InlineMath, Mathematics } from "@tiptap/extension-mathematics";
+import { Mathematics } from "@tiptap/extension-mathematics";
 
 interface Props {
   ydoc: Doc;
@@ -53,11 +53,6 @@ export default function RichTextEditor(props: Props) {
                 .run();
             }
           },
-        },
-      }),
-      InlineMath.configure({
-        katexOptions: {
-          output: "mathml",
         },
       }),
     ],
