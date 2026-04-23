@@ -50,7 +50,6 @@ export default function PresenceBar({ awareness }: Props) {
 
       const mapped: UserPresence[] = states.map(([id, state]) => {
         const user = state.user;
-        console.log(user);
 
         return {
           id,

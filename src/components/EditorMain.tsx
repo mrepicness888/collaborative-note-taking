@@ -70,17 +70,11 @@ export default function EditorMain(props: Props) {
         .maybeSingle();
 
       if (error || !data) {
-        console.log("Route documentId:", props.roomID);
-        console.log(error);
-        console.log(data);
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        const { data: { user }, } = await supabase.auth.getUser();
 
         console.log("Auth user id:", user?.id);
         setRole(null);
       } else {
-        console.log("working");
         setRole(data.role);
       }
 
@@ -135,7 +129,6 @@ export default function EditorMain(props: Props) {
   }
 
   if (!role) {
-    console.log("Role for this document:", role);
     return <div>Access denied</div>;
   }
 
@@ -159,8 +152,6 @@ export default function EditorMain(props: Props) {
 
   const canEditMainText =
     mode === "discussion" || (mode === "lecture" && role === "lecturer");
-  console.log(mode);
-  console.log(canEditMainText);
 
   const ToggleQuestion = (id: string) => {
     const questions = ydoc.getArray<Question>("questions");
@@ -193,11 +184,7 @@ export default function EditorMain(props: Props) {
   };
 
   const handleCreateSuggestion = async () => {
-    console.log("being called");
-    console.log(editorInstance);
     if (!editorInstance) return;
-
-    console.log("not being returned");
 
     const { from, to } = editorInstance.state.selection;
 
@@ -217,8 +204,6 @@ export default function EditorMain(props: Props) {
 
   const handleAcceptSuggestion = (s: Suggestion) => {
     if (s.resolved) return;
-
-    console.log("Accepting suggestion:", s);
 
     const index = ysuggestions.toArray().findIndex((x) => x.id === s.id);
     if (index === -1) return;
@@ -380,7 +365,6 @@ export default function EditorMain(props: Props) {
 
         <main className="editor-main">
           <h2 style={{ margin: 0 }}>{title || "Untitled document"}</h2>
-          <>{console.log(ytext.doc)}</>
           {ready && (
             <RichTextEditor
               ydoc={ydoc}

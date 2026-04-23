@@ -49,7 +49,6 @@ export default function Dashboard() {
   }, []);
 
   const handleCreateDocument = async () => {
-    console.log("being called");
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -97,8 +96,6 @@ export default function Dashboard() {
         return;
       }
     }
-
-    console.log(document);
 
     navigate(`/docs/${document.id}`);
   };

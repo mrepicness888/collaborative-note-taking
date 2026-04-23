@@ -48,11 +48,6 @@ export function useYjs(documentId: string) {
         setLoaded(true);
         return;
       }
-      console.log(
-        "Loaded Yjs content type:",
-        typeof data.content,
-        data.content,
-      );
 
       if (data?.content) {
         const bytes = Uint8Array.from(atob(data.content), (c) =>
