@@ -75,11 +75,11 @@ export default function EditorToolbar({ editor, disabled }: Props) {
 
       <select
         onChange={(e) => {
-          const size = e.target.value
+          const size = e.target.value;
           if (size === "default") {
-            editor.chain().focus().unsetFontSize().run()
+            editor.chain().focus().unsetFontSize().run();
           } else {
-            editor.chain().focus().setFontSize(size).run()
+            editor.chain().focus().setFontSize(size).run();
           }
         }}
         defaultValue="default"

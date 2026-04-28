@@ -131,9 +131,7 @@ describe("InviteButton", () => {
     expect(
       screen.getByPlaceholderText("student@email.ac.uk"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /invite/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /invite/i })).toBeInTheDocument();
   });
 
   it("shows an error for an empty email", async () => {

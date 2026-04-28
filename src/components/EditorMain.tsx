@@ -31,8 +31,8 @@ export default function EditorMain(props: Props) {
     original: string;
     replacement: string;
   } | null>(null);
-  const [isEditingTitle, setIsEditingTitle] = useState(false)
-  const [titleDraft, setTitleDraft] = useState("")
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
 
   useEffect(() => {
     const update = () => {
@@ -72,7 +72,9 @@ export default function EditorMain(props: Props) {
         .maybeSingle();
 
       if (error || !data) {
-        const { data: { user }, } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
         console.log("Auth user id:", user?.id);
         setRole(null);
@@ -96,7 +98,7 @@ export default function EditorMain(props: Props) {
 
       if (data?.title) {
         setTitle(data.title);
-        setTitleDraft(data.title)
+        setTitleDraft(data.title);
       }
     };
 
@@ -227,28 +229,28 @@ export default function EditorMain(props: Props) {
   };
 
   const saveTitle = async () => {
-    const trimmedTitle = titleDraft.trim()
+    const trimmedTitle = titleDraft.trim();
 
     if (!trimmedTitle || trimmedTitle === title) {
-      setTitleDraft(title)
-      setIsEditingTitle(false)
-      return
+      setTitleDraft(title);
+      setIsEditingTitle(false);
+      return;
     }
 
     const { error } = await supabase
       .from("documents")
       .update({ title: trimmedTitle })
-      .eq("id", props.roomID)
+      .eq("id", props.roomID);
 
     if (error) {
-      console.error("Failed to update title:", error)
-      setTitleDraft(title)
-      return
+      console.error("Failed to update title:", error);
+      setTitleDraft(title);
+      return;
     }
 
-    setTitle(trimmedTitle)
-    setIsEditingTitle(false)
-  }
+    setTitle(trimmedTitle);
+    setIsEditingTitle(false);
+  };
 
   return (
     <div className="editor-page">
@@ -398,11 +400,11 @@ export default function EditorMain(props: Props) {
               onChange={(e) => setTitleDraft(e.target.value)}
               onBlur={saveTitle}
               onKeyDown={(e) => {
-                if (e.key === "Enter") saveTitle()
+                if (e.key === "Enter") saveTitle();
 
                 if (e.key === "Escape") {
-                  setTitleDraft(title)
-                  setIsEditingTitle(false)
+                  setTitleDraft(title);
+                  setIsEditingTitle(false);
                 }
               }}
             />
@@ -411,8 +413,8 @@ export default function EditorMain(props: Props) {
               className="editable-document-title"
               onClick={() => {
                 if (role === "lecturer") {
-                  setTitleDraft(title)
-                  setIsEditingTitle(true)
+                  setTitleDraft(title);
+                  setIsEditingTitle(true);
                 }
               }}
               title={role === "lecturer" ? "Click to rename document" : ""}

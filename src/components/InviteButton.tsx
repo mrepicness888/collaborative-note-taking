@@ -33,9 +33,9 @@ export default function InviteButton(props: Props) {
 
       data.forEach(async (row) => {
         const { data: user } = await supabase
-        .from("profiles")
-        .select("email")
-        .eq("user_id", row.user_id);
+          .from("profiles")
+          .select("email")
+          .eq("user_id", row.user_id);
 
         invitedUsersList.push({
           user_id: row.user_id,
@@ -43,12 +43,11 @@ export default function InviteButton(props: Props) {
           role: row.role,
         });
       });
-      
+
       setInvitedUsers(invitedUsersList);
     };
 
     fetchInvitedUsers();
-
   }, [props.documentId]);
 
   const invite = async () => {
@@ -112,14 +111,12 @@ export default function InviteButton(props: Props) {
     setLoading(false);
   };
 
-
   return (
     <div className="invite-wrapper">
       <input
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="student@email.ac.uk"
-
         onClick={() => setShowInvited(true)}
         onBlur={() => {
           setTimeout(() => setShowInvited(false), 150);

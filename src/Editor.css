@@ -338,15 +338,15 @@
   margin-right: 12px;
 }
 
-  .tiptap-mathematics-render--editable {
-    padding: 0 0.25rem;
-    cursor: pointer;
-    transition: background 0.2s;
+.tiptap-mathematics-render--editable {
+  padding: 0 0.25rem;
+  cursor: pointer;
+  transition: background 0.2s;
 
-    &:hover {
-      background: #eee;
-    }
+  &:hover {
+    background: #eee;
   }
+}
 
 .tiptap-mathematics-render {
   border-radius: 0.25rem;
