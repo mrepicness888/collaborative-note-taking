@@ -116,15 +116,11 @@
 
 .invite-wrapper {
   position: relative;
-  width: 260px;
+  display: flex;
 }
 
 .invite-input {
   width: 100%;
-}
-
-.invite-button {
-  margin-top: 0.5rem;
 }
 
 .invite-error {

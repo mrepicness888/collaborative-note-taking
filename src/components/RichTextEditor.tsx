@@ -5,6 +5,7 @@ import { type Text, type Doc } from "yjs";
 import { useEffect } from "react";
 import EditorToolbar from "./EditorToolbar";
 import { Mathematics } from "@tiptap/extension-mathematics";
+import { FontSize, TextStyle } from "@tiptap/extension-text-style";
 
 interface Props {
   ydoc: Doc;
@@ -18,6 +19,8 @@ export default function RichTextEditor(props: Props) {
     editable: props.editable,
     extensions: [
       StarterKit,
+      TextStyle,
+      FontSize,
       Collaboration.configure({
         document: props.ydoc,
       }),

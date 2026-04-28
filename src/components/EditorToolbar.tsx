@@ -73,6 +73,24 @@ export default function EditorToolbar({ editor, disabled }: Props) {
         U
       </button>
 
+      <select
+        onChange={(e) => {
+          const size = e.target.value
+          if (size === "default") {
+            editor.chain().focus().unsetFontSize().run()
+          } else {
+            editor.chain().focus().setFontSize(size).run()
+          }
+        }}
+        defaultValue="default"
+      >
+        <option value="default">Font Size</option>
+        <option value="12px">12px</option>
+        <option value="16px">16px</option>
+        <option value="20px">20px</option>
+        <option value="28px">28px</option>
+      </select>
+
       <span className="toolbar-divider" />
 
       {headingLevels.map((level) => (

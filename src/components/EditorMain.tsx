@@ -31,6 +31,8 @@ export default function EditorMain(props: Props) {
     original: string;
     replacement: string;
   } | null>(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [titleDraft, setTitleDraft] = useState("")
 
   useEffect(() => {
     const update = () => {
@@ -94,6 +96,7 @@ export default function EditorMain(props: Props) {
 
       if (data?.title) {
         setTitle(data.title);
+        setTitleDraft(data.title)
       }
     };
 
@@ -223,6 +226,30 @@ export default function EditorMain(props: Props) {
     });
   };
 
+  const saveTitle = async () => {
+    const trimmedTitle = titleDraft.trim()
+
+    if (!trimmedTitle || trimmedTitle === title) {
+      setTitleDraft(title)
+      setIsEditingTitle(false)
+      return
+    }
+
+    const { error } = await supabase
+      .from("documents")
+      .update({ title: trimmedTitle })
+      .eq("id", props.roomID)
+
+    if (error) {
+      console.error("Failed to update title:", error)
+      setTitleDraft(title)
+      return
+    }
+
+    setTitle(trimmedTitle)
+    setIsEditingTitle(false)
+  }
+
   return (
     <div className="editor-page">
       <header className="editor-topbar">
@@ -231,7 +258,6 @@ export default function EditorMain(props: Props) {
         </button>
 
         <div className="editor-meta">
-          <span className="document-title">{title}</span>
           {role === "student" && (
             <span className="lecture-indicator">{mode}</span>
           )}
@@ -364,7 +390,36 @@ export default function EditorMain(props: Props) {
         </aside>
 
         <main className="editor-main">
-          <h2 style={{ margin: 0 }}>{title || "Untitled document"}</h2>
+          {isEditingTitle ? (
+            <input
+              className="document-title-input"
+              value={titleDraft}
+              autoFocus
+              onChange={(e) => setTitleDraft(e.target.value)}
+              onBlur={saveTitle}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") saveTitle()
+
+                if (e.key === "Escape") {
+                  setTitleDraft(title)
+                  setIsEditingTitle(false)
+                }
+              }}
+            />
+          ) : (
+            <h2
+              className="editable-document-title"
+              onClick={() => {
+                if (role === "lecturer") {
+                  setTitleDraft(title)
+                  setIsEditingTitle(true)
+                }
+              }}
+              title={role === "lecturer" ? "Click to rename document" : ""}
+            >
+              {title || "Untitled document"}
+            </h2>
+          )}
           {ready && (
             <RichTextEditor
               ydoc={ydoc}
