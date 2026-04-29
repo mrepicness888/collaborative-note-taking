@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { normaliseEmail } from "../helpers/email";
 
 interface Props {
   documentId: string;
@@ -51,7 +52,7 @@ export default function InviteButton(props: Props) {
   }, [props.documentId]);
 
   const invite = async () => {
-    const normalisedEmail = email.trim().toLowerCase();
+    const normalisedEmail = normaliseEmail(email);
 
     if (!normalisedEmail) {
       setError("Please enter an email address.");
@@ -62,7 +63,7 @@ export default function InviteButton(props: Props) {
     setError(null);
 
     const alreadyInvited = invitedUsers.some(
-      (user) => user.email.toLowerCase() === normalisedEmail,
+      (user) => normaliseEmail(user.email) === normalisedEmail,
     );
 
     if (alreadyInvited) {

@@ -6,6 +6,7 @@ import "./Editor.css";
 import "./PresenceBar.css";
 import "./Dashboard.css";
 import "./Modal.css";
+import "./Login.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

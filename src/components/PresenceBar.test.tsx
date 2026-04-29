@@ -7,7 +7,7 @@ type UserRole = "Lecturer" | "Student";
 type AwarenessUser = {
   name?: string;
   role?: UserRole;
-  color?: string;
+  colour?: string;
 };
 
 type AwarenessState = {
@@ -32,7 +32,7 @@ describe("PresenceBar", () => {
               user: {
                 name: "Alice",
                 role: "Lecturer",
-                color: "#ff0000",
+                colour: "#ff0000",
               },
               typing: true,
             },
@@ -43,7 +43,7 @@ describe("PresenceBar", () => {
               user: {
                 name: "Bob",
                 role: "Student",
-                color: "#00ff00",
+                colour: "#00ff00",
               },
               typing: false,
             },

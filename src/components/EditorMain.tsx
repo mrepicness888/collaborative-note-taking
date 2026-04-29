@@ -6,6 +6,7 @@ import InviteButton from "./InviteButton";
 import PresenceBar from "./PresenceBar";
 import RichTextEditor from "./RichTextEditor";
 import { Editor } from "@tiptap/react";
+import { canEditMainText } from "../helpers/permissions";
 
 interface Props {
   roomID: string;
@@ -117,7 +118,7 @@ export default function EditorMain(props: Props) {
 
       awareness.setLocalStateField("user", {
         name: user?.user_metadata?.full_name ?? user?.email ?? "Anonymous",
-        color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+        colour: "#" + Math.floor(Math.random() * 16777215).toString(16),
         role: role === "lecturer" ? "Lecturer" : "Student",
       });
     };
@@ -154,9 +155,6 @@ export default function EditorMain(props: Props) {
       },
     ]);
   };
-
-  const canEditMainText =
-    mode === "discussion" || (mode === "lecture" && role === "lecturer");
 
   const ToggleQuestion = (id: string) => {
     const questions = ydoc.getArray<Question>("questions");
@@ -426,7 +424,7 @@ export default function EditorMain(props: Props) {
             <RichTextEditor
               ydoc={ydoc}
               ytext={ytext}
-              editable={canEditMainText}
+              editable={canEditMainText(mode, role)}
               onEditorReady={setEditorInstance}
             />
           )}

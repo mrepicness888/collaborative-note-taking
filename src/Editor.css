@@ -316,15 +316,14 @@
   border-color: #a0aec0;
 }
 
-/* Resolved State Styling */
 .question.resolved {
   background-color: #f8fafc;
-  border-left: 4px solid #48bb78; /* Green indicator */
+  border-left: 4px solid #48bb78; 
 }
 
 .question.resolved .question-text {
   color: #718096;
-  text-decoration: none; /* Keep text readable, just fade it */
+  text-decoration: none; 
 }
 
 .resolved-label {

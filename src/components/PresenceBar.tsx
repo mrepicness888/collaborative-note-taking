@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Awareness } from "y-protocols/awareness";
+import { generateColour } from "../helpers/generateColour";
 
 type Props = {
   awareness: Awareness;
@@ -9,7 +10,7 @@ type UserState = {
   user?: {
     name?: string;
     role?: "Lecturer" | "Student";
-    color?: string;
+    colour?: string;
   };
   typing?: boolean;
 };
@@ -18,27 +19,12 @@ type UserPresence = {
   id: number;
   name: string;
   role: "Lecturer" | "Student";
-  color: string;
+  colour: string;
   typing?: boolean;
 };
 
 export default function PresenceBar({ awareness }: Props) {
   const [users, setUsers] = useState<UserPresence[]>([]);
-
-  const generateColor = (name: string) => {
-    const colors = [
-      "#1abc9c",
-      "#3498db",
-      "#9b59b6",
-      "#e67e22",
-      "#e74c3c",
-      "#f1c40f",
-    ];
-    let hash = 0;
-    for (let i = 0; i < name.length; i++)
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    return colors[Math.abs(hash) % colors.length];
-  };
 
   useEffect(() => {
     if (!awareness) return;
@@ -55,7 +41,7 @@ export default function PresenceBar({ awareness }: Props) {
           id,
           name: user?.name ?? "Anonymous",
           role: user?.role ?? "Student",
-          color: user?.color ?? generateColor(user?.name ?? "Anon"),
+          colour: user?.colour ?? generateColour(user?.name ?? "Anon"),
           typing: state.typing ?? false,
         };
       });
@@ -75,7 +61,7 @@ export default function PresenceBar({ awareness }: Props) {
     <div className="presence-bar">
       {users.map((u) => (
         <div key={u.id} className="presence-user">
-          <span className="presence-dot" style={{ backgroundColor: u.color }} />
+          <span className="presence-dot" style={{ backgroundColor: u.colour }} />
           <span className="presence-name">{u.name}</span>
           <span className="presence-role">{u.role}</span>
           {u.typing && <span className="presence-typing">typing…</span>}

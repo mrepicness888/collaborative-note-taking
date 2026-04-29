@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router-dom";
+import { normaliseEmail } from "../helpers/email";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,7 +13,7 @@ export default function Login() {
   const signIn = async () => {
     setError(null);
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: normaliseEmail(email),
       password,
     });
     if (error) setError(error.message);
@@ -22,24 +23,24 @@ export default function Login() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "2rem auto" }}>
+    <div className="login-container">
       <h2>Login</h2>
 
       <input
         type="email"
         placeholder="Email"
         onChange={(e) => setEmail(e.target.value)}
-        style={{ display: "block", width: "100%", marginBottom: "1rem" }}
+        className="login"
       />
 
       <input
         type="password"
         placeholder="Password"
         onChange={(e) => setPassword(e.target.value)}
-        style={{ display: "block", width: "100%", marginBottom: "1rem" }}
+        className="login"
       />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="red">{error}</p>}
 
       <button onClick={signIn}>Login</button>
 
