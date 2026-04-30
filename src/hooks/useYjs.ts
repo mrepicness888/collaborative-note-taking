@@ -53,6 +53,7 @@ export function useYjs(documentId: string) {
         const bytes = Uint8Array.from(atob(data.content), (c) =>
           c.charCodeAt(0),
         );
+        // Apply CRDT update to synchronise document state across clients
         Y.applyUpdate(ydoc, bytes);
       }
 

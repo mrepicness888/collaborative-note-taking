@@ -16,6 +16,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Load documents and user role from the database when the component mounts
     const loadDocs = async () => {
       const { data, error } = await supabase
         .from("documents")
@@ -30,6 +31,7 @@ export default function Dashboard() {
       }
     };
 
+    // Fetch the user's account role to determine if they can create documents
     const fetchAccountRole = async () => {
       const { data: auth } = await supabase.auth.getUser();
       const user = auth.user;
@@ -58,6 +60,7 @@ export default function Dashboard() {
     const ydoc = new Y.Doc();
 
     const snapshot = Y.encodeStateAsUpdate(ydoc);
+    // Convert the Uint8Array to a base64 string for storage in Supabase
     const base64 = btoa(String.fromCharCode(...snapshot));
 
     const { data: document, error: docError } = await supabase
@@ -99,6 +102,7 @@ export default function Dashboard() {
 
     navigate(`/docs/${document.id}`);
   };
+  
   return (
     <div className="dashboard-page">
       <header className="dashboard-header">

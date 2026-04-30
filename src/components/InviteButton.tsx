@@ -94,6 +94,7 @@ export default function InviteButton(props: Props) {
 
     if (insertError) {
       if (
+        // 23505 is the error code for unique constraint violations in PostgreSQL
         insertError.code === "23505" ||
         insertError.message.toLowerCase().includes("duplicate")
       ) {
