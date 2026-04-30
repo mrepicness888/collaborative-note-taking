@@ -99,18 +99,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.add-button {
-  width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.4rem;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
 .editor-main {
   background: transparent;
   display: flex;
@@ -163,17 +151,6 @@
   cursor: not-allowed;
   box-shadow: none;
   border-style: dashed;
-}
-
-.cursor-highlight {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1.6em;
-  background: rgba(255, 235, 59, 0.35);
-  border-radius: 6px;
-  animation: fadeOut 0.8s ease-out forwards;
-  pointer-events: none;
 }
 
 @keyframes fadeOut {
@@ -260,13 +237,6 @@
   color: white;
 }
 
-.badge.revision {
-  background: #f59e0b;
-  color: white;
-  padding: 4px 10px;
-  border-radius: 999px;
-}
-
 .question-author {
   font-size: 0.85rem;
   color: #718096;
@@ -283,7 +253,6 @@
   margin-bottom: 16px;
 }
 
-/* Buttons */
 .question button {
   cursor: pointer;
   padding: 8px 16px;
@@ -294,7 +263,6 @@
   border: 1px solid transparent;
 }
 
-/* Primary "Resolve" Button */
 .question:not(.resolved) button {
   background-color: #3182ce;
   color: white;
@@ -304,7 +272,6 @@
   background-color: #2b6cb0;
 }
 
-/* Secondary "Reopen" Button */
 .question.resolved button {
   background-color: transparent;
   border-color: #cbd5e0;
